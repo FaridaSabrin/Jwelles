@@ -1,0 +1,128 @@
+.auth-header {
+  margin-bottom: var(--sp-6);
+}
+
+.auth-header h1 {
+  margin-bottom: 6px;
+}
+
+.auth-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--error-bg);
+  color: var(--error);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  margin-bottom: var(--sp-5);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.auth-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+.input-leading-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.input.has-icon {
+  padding-left: 40px;
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-row-end {
+  justify-content: flex-end;
+}
+
+.auth-inline-link {
+  font-size: 0.8rem;
+}
+
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.password-strength-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.password-strength-track span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.25s var(--ease);
+}
+
+.password-strength-track span[data-level="0"],
+.password-strength-track span[data-level="1"] {
+  background: var(--error);
+}
+
+.password-strength-track span[data-level="2"] {
+  background: #c9902b;
+}
+
+.password-strength-track span[data-level="3"] {
+  background: #a8b23e;
+}
+
+.password-strength-track span[data-level="4"] {
+  background: var(--success);
+}
+
+.password-strength small {
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.checkbox-row a {
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: var(--sp-6);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.auth-switch a {
+  color: var(--gold-dark);
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .auth-name-row {
+    grid-template-columns: 1fr;
+  }
+}

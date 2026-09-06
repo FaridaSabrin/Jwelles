@@ -1,0 +1,281 @@
+/* CreateCollectionModal.css - Inline form in drawer (FIXED) */
+
+.create-collection-form-container {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  pointer-events: auto;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.create-collection-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  margin-bottom: 0;
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: white;
+  color: #1a1a1a;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-group input[type="text"]:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.form-group input[type="text"]::placeholder {
+  color: #ccc;
+}
+
+.form-group input[type="text"]:disabled {
+  background: #f9f9f9;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #dc3545;
+  margin: 4px 0 0 0;
+}
+
+/* Suggestions */
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-btn {
+  padding: 8px 14px;
+  background: #faf7f2;
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #666;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.suggestion-btn:hover {
+  background: #f5f1ed;
+  border-color: #d4af37;
+  color: #1a1a1a;
+}
+
+.suggestion-btn:active {
+  transform: scale(0.98);
+}
+
+.suggestion-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.radio-label:hover {
+  background: #faf7f2;
+  border-color: #d4af37;
+}
+
+.radio-label input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #d4af37;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.radio-label input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.radio-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.radio-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.radio-desc {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #d4af37;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #c9910a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #e8e8e8;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f0f0f0;
+  color: #1a1a1a;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .create-collection-form-container {
+    padding: 16px;
+  }
+
+  .suggestions {
+    flex-direction: column;
+  }
+
+  .suggestion-btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 360px) {
+  .create-collection-form-container {
+    padding: 12px;
+  }
+
+  .radio-label {
+    padding: 12px;
+  }
+}
+
+/* Ensure all interactive elements are clickable */
+.create-collection-form-container * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus visible styles for accessibility */
+.form-group input[type="text"]:focus-visible,
+.suggestion-btn:focus-visible,
+.radio-label input[type="radio"]:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid #d4af37;
+  outline-offset: 2px;
+}

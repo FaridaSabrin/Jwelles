@@ -1,0 +1,128 @@
+.filter-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.filter-fields {
+  position: sticky;
+  top: 100px;
+}
+
+.filter-fields-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-2);
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.filter-clear-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+
+.filter-section {
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.filter-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--sp-4) 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.filter-section-head svg {
+  color: var(--muted);
+  transition: transform 0.2s var(--ease);
+}
+
+.filter-section-head svg.rotated {
+  transform: rotate(180deg);
+}
+
+.filter-section-body {
+  padding-bottom: var(--sp-4);
+}
+
+.filter-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  text-align: left;
+  border-radius: var(--radius-sm);
+}
+
+.filter-option:hover {
+  color: var(--ink);
+}
+
+.filter-option-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  flex-shrink: 0;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.filter-option.is-active {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.filter-option.is-active .filter-option-dot {
+  border-color: var(--gold);
+  background: var(--gold);
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.filter-price-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--sp-3);
+}
+
+.filter-price-custom .input {
+  height: 40px;
+  font-size: 0.82rem;
+  padding: 0 10px;
+}
+
+.filter-price-custom span {
+  color: var(--muted);
+}
+
+.filter-availability {
+  padding: 4px;
+}
+
+@media (max-width: 1080px) {
+  .filter-sidebar {
+    display: none;
+  }
+}

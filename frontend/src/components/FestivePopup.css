@@ -1,0 +1,574 @@
+/* =========================================================
+   PROMOTION POPUP - DYNAMIC, REUSABLE
+   Center popup + Auto-minimize + Floating badge
+========================================================= */
+
+@keyframes promotionFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes balloonFloat {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(var(--drift));
+    opacity: 0.6;
+  }
+}
+
+@keyframes sparkleFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-150px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes floatingBadgeSlideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes floatingBadgeBounce {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+/* ---- CENTER POPUP OVERLAY ---- */
+.promotion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(32, 24, 17, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: var(--sp-4);
+  animation: promotionFadeIn 0.5s var(--ease) forwards;
+}
+
+.promotion-popup {
+  position: relative;
+  background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%);
+  border: 2px solid var(--gold-light);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-7);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(32, 24, 17, 0.15);
+  animation: promotionFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  overflow: hidden;
+}
+
+/* Gold accent lines */
+.promotion-popup::before,
+.promotion-popup::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+
+.promotion-popup::before {
+  top: var(--sp-5);
+}
+
+.promotion-popup::after {
+  bottom: var(--sp-5);
+}
+
+/* Decorative elements */
+.promotion-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Balloons */
+.balloon {
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  border-radius: 50% 50% 50% 0;
+  pointer-events: none;
+  animation: balloonFloat 6s ease-in forwards;
+}
+
+.balloon::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 20px;
+  background: rgba(169, 121, 63, 0.3);
+}
+
+.balloon-1 {
+  --drift: -30px;
+  background: linear-gradient(135deg, rgba(169, 121, 63, 0.8), rgba(201, 160, 106, 0.8));
+  top: 10%;
+  left: 10%;
+  animation-delay: 0.2s;
+}
+
+.balloon-2 {
+  --drift: 20px;
+  background: linear-gradient(135deg, rgba(201, 160, 106, 0.7), rgba(169, 121, 63, 0.7));
+  top: 15%;
+  right: 10%;
+  animation-delay: 0.4s;
+}
+
+.balloon-3 {
+  --drift: -10px;
+  background: linear-gradient(135deg, rgba(169, 121, 63, 0.75), rgba(138, 95, 44, 0.75));
+  bottom: 20%;
+  left: 15%;
+  animation-delay: 0.1s;
+}
+
+/* Sparkles */
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: sparkleFloat 3s ease-out forwards;
+  box-shadow: 0 0 10px var(--gold-light);
+}
+
+.sparkle-1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0.3s;
+  width: 4px;
+  height: 4px;
+}
+
+.sparkle-2 {
+  top: 30%;
+  right: 20%;
+  animation-delay: 0.6s;
+  width: 6px;
+  height: 6px;
+}
+
+.sparkle-3 {
+  bottom: 30%;
+  left: 25%;
+  animation-delay: 0.4s;
+  width: 5px;
+  height: 5px;
+}
+
+.sparkle-4 {
+  bottom: 20%;
+  right: 15%;
+  animation-delay: 0.8s;
+  width: 4px;
+  height: 4px;
+}
+
+/* Close button */
+.promotion-close-btn {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ink);
+  padding: var(--sp-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s var(--ease);
+  z-index: 1;
+}
+
+.promotion-close-btn:hover {
+  background: rgba(169, 121, 63, 0.1);
+  color: var(--gold-dark);
+}
+
+.promotion-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* Content */
+.promotion-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.promotion-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.sparkle-text {
+  font-size: 1.5rem;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.promotion-title {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.promotion-subtitle {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--sp-4);
+  font-weight: 500;
+}
+
+.promotion-occasion {
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-4) var(--sp-3);
+  background: rgba(169, 121, 63, 0.05);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--gold);
+}
+
+.occasion-text {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+}
+
+.promotion-discount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-4) 0;
+}
+
+.discount-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.discount-value {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+  line-height: 1;
+}
+
+.promotion-cta-text {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--sp-5);
+  font-weight: 500;
+}
+
+.promotion-cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: var(--white);
+  padding: var(--sp-4) var(--sp-6);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s var(--ease);
+  box-shadow: 0 4px 15px rgba(169, 121, 63, 0.3);
+}
+
+.promotion-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(169, 121, 63, 0.4);
+}
+
+.promotion-cta-button:active {
+  transform: translateY(0);
+}
+
+/* ---- FLOATING MINIMIZED BADGE ---- */
+.floating-promotion-badge {
+  position: fixed;
+  bottom: var(--sp-6);
+  right: var(--sp-4);
+  background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%);
+  border: 2px solid var(--gold-light);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  z-index: 9998;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  box-shadow: 0 10px 40px rgba(32, 24, 17, 0.15);
+  animation: floatingBadgeSlideIn 0.5s var(--ease) forwards;
+  transition: all 0.3s var(--ease);
+  max-width: 300px;
+  border: 2px solid var(--gold);
+}
+
+.floating-promotion-badge:hover {
+  box-shadow: 0 15px 50px rgba(32, 24, 17, 0.2);
+  transform: translateY(-5px);
+}
+
+.floating-promotion-badge:active {
+  transform: translateY(0);
+}
+
+.badge-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.badge-content {
+  flex: 1;
+  text-align: left;
+}
+
+.badge-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+}
+
+.badge-subtitle {
+  font-size: 0.75rem;
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+
+.badge-indicator {
+  font-size: 1rem;
+  color: var(--gold);
+  font-weight: bold;
+  flex-shrink: 0;
+  animation: floatingBadgeBounce 2s ease-in-out infinite;
+}
+
+/* ---- RESPONSIVE DESIGN ---- */
+@media (max-width: 768px) {
+  .promotion-popup {
+    padding: var(--sp-5);
+    max-width: 90%;
+  }
+
+  .promotion-title {
+    font-size: 1.4rem;
+  }
+
+  .discount-value {
+    font-size: 2.5rem;
+  }
+
+  .occasion-text {
+    font-size: 1.1rem;
+  }
+
+  .promotion-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .promotion-close-btn {
+    top: var(--sp-3);
+    right: var(--sp-3);
+  }
+
+  .floating-promotion-badge {
+    bottom: var(--sp-4);
+    right: var(--sp-3);
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .promotion-overlay {
+    padding: var(--sp-2);
+  }
+
+  .promotion-popup {
+    padding: var(--sp-4);
+  }
+
+  .promotion-title {
+    font-size: 1.2rem;
+    letter-spacing: 0.08em;
+  }
+
+  .promotion-header {
+    gap: var(--sp-2);
+  }
+
+  .sparkle-text {
+    font-size: 1.2rem;
+  }
+
+  .promotion-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: var(--sp-3);
+  }
+
+  .promotion-occasion {
+    padding: var(--sp-3) var(--sp-2);
+    margin-bottom: var(--sp-4);
+  }
+
+  .occasion-text {
+    font-size: 1rem;
+  }
+
+  .promotion-discount {
+    gap: var(--sp-2);
+    padding: var(--sp-3) 0;
+    margin-bottom: var(--sp-3);
+  }
+
+  .discount-label {
+    font-size: 0.8rem;
+  }
+
+  .discount-value {
+    font-size: 2rem;
+  }
+
+  .promotion-cta-text {
+    font-size: 0.85rem;
+    margin-bottom: var(--sp-4);
+  }
+
+  .promotion-cta-button {
+    padding: var(--sp-3) var(--sp-5);
+    font-size: 0.85rem;
+  }
+
+  .promotion-close-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .floating-promotion-badge {
+    bottom: var(--sp-3);
+    right: var(--sp-2);
+    max-width: 260px;
+    padding: var(--sp-2) var(--sp-3);
+    gap: var(--sp-2);
+  }
+
+  .badge-icon {
+    font-size: 1.2rem;
+  }
+
+  .badge-title {
+    font-size: 0.8rem;
+  }
+
+  .badge-subtitle {
+    font-size: 0.7rem;
+  }
+
+  .badge-indicator {
+    font-size: 0.9rem;
+  }
+
+  /* Hide decorative elements on very small screens */
+  .balloon,
+  .sparkle {
+    display: none;
+  }
+}
+
+/* Accessibility */
+.promotion-close-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.promotion-cta-button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.floating-promotion-badge:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .promotion-overlay,
+  .promotion-popup,
+  .balloon,
+  .sparkle,
+  .sparkle-text,
+  .promotion-close-btn,
+  .promotion-cta-button,
+  .floating-promotion-badge,
+  .badge-indicator {
+    animation: none !important;
+    transition: none !important;
+  }
+}
