@@ -36,6 +36,7 @@ DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "jwelles.onrender.com",
 ]
 
 
@@ -277,7 +278,6 @@ REST_FRAMEWORK = {
 # =========================================================
 
 CORS_ALLOWED_ORIGINS = [
-
     # React / Vite
     "http://localhost:5174",
     "http://127.0.0.1:5174",
@@ -286,9 +286,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 
-    # Possible React development port
+    # Other local development
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+
+    # Render
+    "https://jwelles.onrender.com",
 ]
 
 
@@ -343,7 +346,6 @@ CORS_ALLOW_METHODS = [
 # =========================================================
 
 CSRF_TRUSTED_ORIGINS = [
-
     "http://localhost:5174",
     "http://127.0.0.1:5174",
 
@@ -352,6 +354,9 @@ CSRF_TRUSTED_ORIGINS = [
 
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+
+    # Render
+    "https://jwelles.onrender.com",
 ]
 
 
@@ -381,3 +386,6 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
     SECURE_HSTS_PRELOAD = True
+
+
+
