@@ -84,6 +84,9 @@ MIDDLEWARE = [
 
     "django.middleware.security.SecurityMiddleware",
 
+    # WhiteNoise serves Django static files in production
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
 
     # CORS middleware must be before CommonMiddleware
@@ -280,9 +283,14 @@ USE_TZ = True
 # STATIC FILES
 # =========================================================
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise storage for production static files
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 
 # =========================================================
