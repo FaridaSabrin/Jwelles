@@ -65,6 +65,9 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
 
+    # Cloudinary
+    "cloudinary",
+
     # -----------------------------------------------------
     # Project apps
     # -----------------------------------------------------
@@ -83,7 +86,6 @@ MIDDLEWARE = [
 
     "django.contrib.sessions.middleware.SessionMiddleware",
 
-    # IMPORTANT:
     # CORS middleware must be before CommonMiddleware
     "corsheaders.middleware.CorsMiddleware",
 
@@ -146,19 +148,25 @@ ASGI_APPLICATION = "config.asgi.application"
 # DATABASE - AIVEN MYSQL
 # =========================================================
 
-# =========================================================
-# DATABASE - AIVEN MYSQL
-# =========================================================
-
 DB_SSL_CA = BASE_DIR / "certs" / "ca.pem"
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
 
-        "NAME": os.getenv("DB_NAME", "defaultdb"),
-        "USER": os.getenv("DB_USER", "avnadmin"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "NAME": os.getenv(
+            "DB_NAME",
+            "defaultdb",
+        ),
+
+        "USER": os.getenv(
+            "DB_USER",
+            "avnadmin",
+        ),
+
+        "PASSWORD": os.getenv(
+            "DB_PASSWORD",
+        ),
 
         "HOST": os.getenv(
             "DB_HOST",
@@ -181,6 +189,50 @@ DATABASES = {
         "CONN_MAX_AGE": 60,
     }
 }
+
+
+# =========================================================
+# CLOUDINARY CONFIGURATION
+# =========================================================
+#
+# Cloudinary stores uploaded images.
+#
+# Aiven:
+#   Stores application/database information
+#
+# Cloudinary:
+#   Stores product/category/custom-jewelry images
+#
+# Render:
+#   Runs Django backend
+#
+# IMPORTANT:
+# Never hard-code the API secret here.
+# Store credentials in .env locally and Render
+# Environment Variables in production.
+# =========================================================
+
+CLOUDINARY_CLOUD_NAME = os.getenv(
+    "CLOUDINARY_CLOUD_NAME"
+)
+
+CLOUDINARY_API_KEY = os.getenv(
+    "CLOUDINARY_API_KEY"
+)
+
+CLOUDINARY_API_SECRET = os.getenv(
+    "CLOUDINARY_API_SECRET"
+)
+
+
+# Cloudinary SDK configuration
+import cloudinary
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+)
 
 
 # =========================================================
@@ -236,6 +288,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # =========================================================
 # MEDIA FILES
 # =========================================================
+#
+# These settings can remain for existing local media files.
+#
+# New Cloudinary images will not depend on Render's
+# local filesystem when your models use CloudinaryField.
+# =========================================================
 
 MEDIA_URL = "/media/"
 
@@ -274,33 +332,30 @@ REST_FRAMEWORK = {
 # =========================================================
 # CORS CONFIGURATION
 # =========================================================
-#
-# React/Vite frontend:
-#
-# http://localhost:5174
-#
-# Django backend:
-#
-# http://127.0.0.1:8000
-#
-# These are different origins, so Django must explicitly
-# allow the frontend origin.
-# =========================================================
 
 CORS_ALLOWED_ORIGINS = [
-    # React / Vite
+
+    # -----------------------------------------------------
+    # Local React / Vite
+    # -----------------------------------------------------
+
     "http://localhost:5174",
     "http://127.0.0.1:5174",
 
-    # Vite default port
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 
+    # -----------------------------------------------------
     # Other local development
+    # -----------------------------------------------------
+
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 
-    # Render
+    # -----------------------------------------------------
+    # Render backend
+    # -----------------------------------------------------
+
     "https://jwelles.onrender.com",
 ]
 
@@ -356,12 +411,15 @@ CORS_ALLOW_METHODS = [
 # =========================================================
 
 CSRF_TRUSTED_ORIGINS = [
+
+    # Local React / Vite
     "http://localhost:5174",
     "http://127.0.0.1:5174",
 
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 
+    # Other local development
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 
@@ -396,6 +454,3 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
     SECURE_HSTS_PRELOAD = True
-
-
-

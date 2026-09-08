@@ -37,3 +37,29 @@ test-results/
 # OS
 .DS_Store
 Thumbs.db
+# =========================================================
+# Django / Python
+# =========================================================
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+.venv2/
+venv/
+env/
+
+# Django generated static files
+backend/staticfiles/
+
+# Local database
+db.sqlite3
+*.sqlite3
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
