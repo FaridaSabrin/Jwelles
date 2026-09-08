@@ -11,13 +11,7 @@ from django.db import models
 from django.utils import timezone
 
 
-# =========================================================
-# MIGRATION COMPATIBILITY FUNCTION
-# =========================================================
-# Migration 0005 references this function. Even though the
-# current CustomizationRequest model uses CloudinaryField,
-# Django still needs this function available when loading
-# the historical migration.
+
 def customization_image_upload_path(instance, filename):
     return f"customizations/{filename}"
 
