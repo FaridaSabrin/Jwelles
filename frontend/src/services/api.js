@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api/v1"; 
+const API_URL = import.meta.env.VITE_API_URL || "https://jwelles.onrender.com/api/v1";
 
 async function request(path, options = {}) { 
   const token = localStorage.getItem("auth_token"); 
