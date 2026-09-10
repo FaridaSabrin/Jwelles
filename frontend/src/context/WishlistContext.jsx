@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useEffect, useState, useCallback, useMemo } from "react";
+=======
+import { useEffect, useState, useCallback } from "react";
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 import { WishlistContext } from "./WishlistContextInstance";
 import { 
   addWishlistItem, 
@@ -63,6 +67,7 @@ export const WishlistProvider = ({ children }) => {
       .finally(() => setCollectionsReady(true));
   }, [isAuthenticated, loading]);
 
+<<<<<<< HEAD
   // Products that live ONLY inside one of this user's PRIVATE collections.
   // The backend already excludes these from the /wishlist/ response, but we
   // re-derive the same rule here from `collections` (which the owner already
@@ -98,6 +103,11 @@ export const WishlistProvider = ({ children }) => {
   const isWishlisted = useCallback((productId) => {
     return visibleItems.some((item) => item.product.id === productId);
   }, [visibleItems]);
+=======
+  const isWishlisted = useCallback((productId) => {
+    return items.some((item) => item.product.id === productId);
+  }, [items]);
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
   const wishlistEntryId = useCallback((productId) => {
     const item = items.find((item) => item.product.id === productId);
@@ -180,6 +190,7 @@ export const WishlistProvider = ({ children }) => {
   const addToCollection = async (collectionId, productId) => {
     try {
       await addProductToCollection(collectionId, productId);
+<<<<<<< HEAD
       // Refresh collections *and* the flat wishlist so public visibility
       // (isWishlisted/totalItems) is immediately re-derived - e.g. a product
       // that just became private-collection-only stops looking wishlisted
@@ -190,6 +201,11 @@ export const WishlistProvider = ({ children }) => {
       ]);
       setCollections(updatedCollections);
       setItems(updatedItems);
+=======
+      // Refresh collections
+      const updated = await getWishlistCollections();
+      setCollections(updated);
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     } catch (error) {
       console.error("Failed to add to collection:", error);
       throw error;
@@ -199,6 +215,7 @@ export const WishlistProvider = ({ children }) => {
   const removeFromCollection = async (collectionId, productId) => {
     try {
       await removeProductFromCollection(collectionId, productId);
+<<<<<<< HEAD
       // Refresh collections *and* the flat wishlist - see addToCollection.
       const [updatedCollections, updatedItems] = await Promise.all([
         getWishlistCollections(),
@@ -206,6 +223,11 @@ export const WishlistProvider = ({ children }) => {
       ]);
       setCollections(updatedCollections);
       setItems(updatedItems);
+=======
+      // Refresh collections
+      const updated = await getWishlistCollections();
+      setCollections(updated);
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     } catch (error) {
       console.error("Failed to remove from collection:", error);
       throw error;
@@ -225,11 +247,19 @@ export const WishlistProvider = ({ children }) => {
   return (
     <WishlistContext.Provider
       value={{
+<<<<<<< HEAD
         items: visibleItems,
         ready,
         collections,
         collectionsReady,
         totalItems: visibleItems.length,
+=======
+        items,
+        ready,
+        collections,
+        collectionsReady,
+        totalItems: items.length,
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
         isWishlisted,
         addToWishlist,
         removeFromWishlist,

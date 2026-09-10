@@ -13,6 +13,7 @@ const RECIPIENTS = [
   { label: "Unisex", value: "unisex" },
 ];
 
+<<<<<<< HEAD
 const POPULAR_COLLECTIONS = [
   { label: "New Arrivals", path: "/products?sort=newest" },
   { label: "Special Offers", path: "/products?discount=true" },
@@ -28,6 +29,8 @@ const CUSTOM_JEWELRY = [
   { label: "Photo Jewelry", path: "/custom-jewelry?type=photo" },
 ];
 
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 export default function MobileMenu({ open, onClose }) {
   const { primaryCategories, metalCategories } = useCategories();
   const { isAuthenticated, user, logout } = useAuth();
@@ -74,7 +77,11 @@ export default function MobileMenu({ open, onClose }) {
             {expanded === "category" && (
               <div className="mobile-accordion-panel">
                 {primaryCategories.map((cat) => (
+<<<<<<< HEAD
                   <Link key={cat.id} to={`/products?category=${encodeURIComponent(cat.slug)}`} onClick={onClose}>
+=======
+                  <Link key={cat.id} to={`/products?category=${encodeURIComponent(cat.name)}`} onClick={onClose}>
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
                     {cat.name}
                   </Link>
                 ))}
@@ -110,6 +117,7 @@ export default function MobileMenu({ open, onClose }) {
                 {RECIPIENTS.map((r) => (
                   <Link key={r.value} to={`/products?gender=${r.value}`} onClick={onClose}>{r.label}</Link>
                 ))}
+<<<<<<< HEAD
                 <Link to="/products?discount=true" onClick={onClose} className="mega-menu-offer-link">View Current Offers →</Link>
               </div>
             )}
@@ -139,6 +147,8 @@ export default function MobileMenu({ open, onClose }) {
                 {CUSTOM_JEWELRY.map((item) => (
                   <Link key={item.label} to={item.path} onClick={onClose}>{item.label}</Link>
                 ))}
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
               </div>
             )}
           </div>

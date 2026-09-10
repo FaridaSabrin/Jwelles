@@ -2,7 +2,11 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework import serializers
 from .models import (Address, CartItem, Category, Coupon, CustomizationRequest,
+<<<<<<< HEAD
                     DeliveryServiceArea, EmailVerificationOTP, Order, OrderItem, PincodeLocation,
+=======
+                    DeliveryServiceArea, Order, OrderItem, PincodeLocation,
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
                     Product, ProductImage, Review, SupportMessage, SupportTicket,
                     WishlistItem, WishlistCollection, WishlistCollectionItem)
 
@@ -103,6 +107,7 @@ class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     def validate_email(self, value):
+<<<<<<< HEAD
         value = value.lower()
         existing = get_user_model().objects.filter(email__iexact=value).first()
         if existing:
@@ -197,6 +202,15 @@ class ResendOTPSerializer(serializers.Serializer):
         data["user"] = user
         data["otp_record"] = otp_record
         return data
+=======
+        if get_user_model().objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("An account with this email already exists.")
+        return value.lower()
+    def create(self, data):
+        name = data.pop("name").strip()
+        first_name, *rest = name.split()
+        return get_user_model().objects.create_user(username=data["email"], email=data["email"], password=data["password"], first_name=first_name, last_name=" ".join(rest))
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
 
 class CustomizationRequestSerializer(serializers.ModelSerializer):

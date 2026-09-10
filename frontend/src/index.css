@@ -265,6 +265,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: var(--sp-2);
+<<<<<<< HEAD
 
   height: 48px;
   min-height: 48px;
@@ -273,17 +274,26 @@ main {
   padding: 0 var(--sp-6);
   border-radius: var(--radius-pill);
 
+=======
+  height: 48px;
+  padding: 0 var(--sp-6);
+  border-radius: var(--radius-pill);
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+<<<<<<< HEAD
 
   transition:
     background-color 0.25s var(--ease),
     color 0.25s var(--ease),
     border-color 0.25s var(--ease),
     transform 0.15s var(--ease);
+=======
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.15s var(--ease);
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 }
 
 .btn-sm {

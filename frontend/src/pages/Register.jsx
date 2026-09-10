@@ -134,6 +134,7 @@ export default function Register() {
       );
 
       toast.success(
+<<<<<<< HEAD
         "Account created! Please verify your email."
       );
 
@@ -141,6 +142,12 @@ export default function Register() {
       navigate("/verify-email", {
         state: { email: form.email.trim() },
       });
+=======
+        "Welcome to Jwelles — your account is ready."
+      );
+
+      navigate("/");
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     } catch (err) {
       console.error("Registration failed:", err);
 
@@ -430,4 +437,8 @@ export default function Register() {
       </p>
     </AuthLayout>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440

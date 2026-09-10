@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import uuid
 import secrets
 from datetime import timedelta
+=======
+
+import uuid
+import secrets
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
 from cloudinary.models import CloudinaryField
 
@@ -165,6 +171,7 @@ class WishlistItem(models.Model):
             )
         ]
 
+<<<<<<< HEAD
     @staticmethod
     def public_queryset(user):
         """Wishlist items safe to power public/general UI - the navbar
@@ -195,6 +202,8 @@ class WishlistItem(models.Model):
         )
         return private_ids - public_ids
 
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
 class Address(models.Model):
     user = models.ForeignKey(
@@ -817,6 +826,7 @@ class SupportMessage(models.Model):
     def __str__(self):
         return f"Message on {self.ticket.ticket_id} by {self.sender}"
 
+<<<<<<< HEAD
 
 class EmailVerificationOTP(models.Model):
     """Stores OTP for email verification during registration."""
@@ -865,3 +875,5 @@ class EmailVerificationOTP(models.Model):
         self.save()
         remaining = self.MAX_ATTEMPTS - self.attempts
         return False, f"Invalid OTP. {remaining} attempts remaining."
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440

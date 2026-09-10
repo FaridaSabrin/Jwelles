@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SlidersHorizontal, X, PackageSearch } from "lucide-react";
 import { getProducts } from "../services/api";
+<<<<<<< HEAD
 import { useCategories } from "../hooks/useCategories";
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 import ProductCard from "../components/ProductCard";
 import { ProductGridSkeleton } from "../components/Skeletons";
 import EmptyState from "../components/EmptyState";
@@ -14,14 +17,21 @@ import SortDropdown from "../components/SortDropdown";
 import Pagination from "../components/Pagination";
 import "./Products.css";
 
+<<<<<<< HEAD
 const FILTER_KEYS = ["search", "category", "metal_type", "purity", "gender", "min_price", "max_price", "rating", "discount", "min_discount", "available", "best_seller"];
+=======
+const FILTER_KEYS = ["search", "category", "metal_type", "purity", "gender", "min_price", "max_price", "rating", "discount", "min_discount", "available"];
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 const PAGE_SIZE = 12;
 
 const SERVER_SORT = { newest: "newest", price_asc: "price_asc", price_desc: "price_desc", popular: "popular", best_rated: "best_rated" };
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
+<<<<<<< HEAD
   const { categories } = useCategories();
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
   const [allProducts, setAllProducts] = useState([]);
   const [purityOptions, setPurityOptions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +113,7 @@ export default function Products() {
   const currentPage = Math.min(page, totalPages);
   const pageItems = processed.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+<<<<<<< HEAD
   // The category filter travels as a slug (e.g. "gold") so it matches the
   // backend/category data; look up the friendly display name for the
   // heading/breadcrumb, falling back to a capitalized slug if unmatched.
@@ -117,18 +128,30 @@ export default function Products() {
 
   const activeChips = FILTER_KEYS.filter((k) => filters[k] && k !== "available" && k !== "min_discount")
     .map((k) => ({ key: k, label: k === "category" ? categoryLabel : filters[k] }))
+=======
+  const activeChips = FILTER_KEYS.filter((k) => filters[k] && k !== "available" && k !== "min_discount")
+    .map((k) => ({ key: k, label: filters[k] }))
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     .concat(filters.available === "true" ? [{ key: "available", label: "In Stock" }] : [])
     .concat(filters.min_discount ? [{ key: "min_discount", label: `${filters.min_discount}%+ Off` }] : []);
 
   const title = filters.category || filters.search
+<<<<<<< HEAD
     ? (filters.search ? `Results for "${filters.search}"` : categoryLabel)
+=======
+    ? (filters.search ? `Results for "${filters.search}"` : filters.category)
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     : "Our Jewellery";
 
   const filterProps = { filters, onChange: setFilter, onClear: clearAll, purityOptions };
 
   return (
     <div className="container products-page">
+<<<<<<< HEAD
       <Breadcrumbs items={[{ label: "Jewellery", to: "/products" }, ...(filters.category ? [{ label: categoryLabel }] : [])]} />
+=======
+      <Breadcrumbs items={[{ label: "Jewellery", to: "/products" }, ...(filters.category ? [{ label: filters.category }] : [])]} />
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
       <div className="products-header">
         <h1 className="heading-lg">{title}</h1>

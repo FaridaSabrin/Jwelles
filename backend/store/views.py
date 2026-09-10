@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+<<<<<<< HEAD
 import logging
 import requests
 import math
@@ -9,6 +10,12 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
+=======
+import requests
+import math
+
+from django.contrib.auth import authenticate
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 from django.db import transaction
 from django.db.models import Avg, Count, F, Q
 from django.utils import timezone
@@ -17,16 +24,22 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+<<<<<<< HEAD
 from .models import Address, Cart, CartItem, Category, Coupon, CouponUsage, CustomizationRequest, DeliveryServiceArea, EmailVerificationOTP, LocationDiscount, Order, OrderItem, PincodeLocation, Product, Review, SupportMessage, SupportTicket, WishlistItem, WishlistCollection, WishlistCollectionItem
 from .serializers import (AddressSerializer, AdminSupportTicketDetailSerializer, AdminSupportTicketListSerializer, AdminUpdateSupportTicketSerializer, CartItemSerializer, CategorySerializer, CreateSupportTicketSerializer, CustomizationRequestSerializer, OrderSerializer, ProductSerializer, RegisterSerializer, ResendOTPSerializer, ReviewSerializer, SupportMessageCreateSerializer, SupportMessageSerializer, SupportTicketDetailSerializer, SupportTicketListSerializer, UserSerializer, VerifyEmailOTPSerializer, WishlistItemSerializer, WishlistCollectionSerializer, WishlistCollectionDetailSerializer, WishlistCollectionPublicSerializer, WishlistCollectionItemSerializer)
 
 logger = logging.getLogger(__name__)
+=======
+from .models import Address, Cart, CartItem, Category, Coupon, CouponUsage, CustomizationRequest, DeliveryServiceArea, LocationDiscount, Order, OrderItem, PincodeLocation, Product, Review, SupportMessage, SupportTicket, WishlistItem, WishlistCollection, WishlistCollectionItem
+from .serializers import (AddressSerializer, AdminSupportTicketDetailSerializer, AdminSupportTicketListSerializer, AdminUpdateSupportTicketSerializer, CartItemSerializer, CategorySerializer, CreateSupportTicketSerializer, CustomizationRequestSerializer, OrderSerializer, ProductSerializer, RegisterSerializer, ReviewSerializer, SupportMessageCreateSerializer, SupportMessageSerializer, SupportTicketDetailSerializer, SupportTicketListSerializer, UserSerializer, WishlistItemSerializer, WishlistCollectionSerializer, WishlistCollectionDetailSerializer, WishlistCollectionPublicSerializer, WishlistCollectionItemSerializer)
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
 
 def annotated_products():
     return Product.objects.filter(is_available=True).annotate(average_rating=Avg("reviews__rating"), review_count=Count("reviews"))
 
 
+<<<<<<< HEAD
 def generate_otp():
     """Generate a secure 6-digit OTP"""
     return ''.join(random.choices(string.digits, k=6))
@@ -128,6 +141,8 @@ Jwelles Team
     return False
 
 
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 class ProductListView(generics.ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
@@ -143,7 +158,10 @@ class ProductListView(generics.ListAPIView):
         if p.get("available") == "true": q = q.filter(stock__gt=0)
         if p.get("rating"): q = q.filter(average_rating__gte=p["rating"])
         if p.get("discount") == "true": q = q.filter(original_price__gt=0).filter(original_price__gt=F("price"))
+<<<<<<< HEAD
         if p.get("best_seller") == "true": q = q.filter(is_best_seller=True)
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
         sort = p.get("sort", "newest")
         return q.order_by({"price_asc": "price", "price_desc": "-price", "popular": "-review_count", "best_rated": "-average_rating", "newest": "-created_at"}.get(sort, "-created_at"))
 
@@ -162,6 +180,7 @@ class CategoryListView(generics.ListAPIView):
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
+<<<<<<< HEAD
     
     @transaction.atomic
     def post(self, request):
@@ -269,11 +288,18 @@ class ResendOTPView(APIView):
             "message": "New OTP sent to your email.",
             "email": user.email,
         }, status=status.HTTP_200_OK)
+=======
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data); serializer.is_valid(raise_exception=True)
+        user = serializer.save(); token, _ = Token.objects.get_or_create(user=user)
+        return Response({"user": UserSerializer(user).data, "token": token.key}, status=status.HTTP_201_CREATED)
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request):
+<<<<<<< HEAD
         email = request.data.get("email", "").lower().strip()
         password = request.data.get("password", "")
 
@@ -303,6 +329,11 @@ class LoginView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+=======
+        email, password = request.data.get("email", ""), request.data.get("password", "")
+        user = authenticate(request, username=email, password=password)
+        if not user: return Response({"detail": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
         token, _ = Token.objects.get_or_create(user=user)
         return Response({"user": UserSerializer(user).data, "token": token.key})
 
@@ -314,6 +345,7 @@ class LogoutView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+<<<<<<< HEAD
 class AdminDestroyTokenView(APIView):
     """Admin can destroy any user's token to force logout"""
     permission_classes = [permissions.IsAdminUser]
@@ -332,6 +364,8 @@ class AdminDestroyTokenView(APIView):
             )
 
 
+=======
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def get(self, request): return Response(UserSerializer(request.user).data)
@@ -369,7 +403,11 @@ class CartItemDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class WishlistView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+<<<<<<< HEAD
     def get(self, request): return Response(WishlistItemSerializer(WishlistItem.public_queryset(request.user).select_related("product"), many=True).data)
+=======
+    def get(self, request): return Response(WishlistItemSerializer(WishlistItem.objects.filter(user=request.user).select_related("product"), many=True).data)
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     def post(self, request):
         serializer = WishlistItemSerializer(data=request.data); serializer.is_valid(raise_exception=True)
         item, created = WishlistItem.objects.get_or_create(user=request.user, product=serializer.validated_data["product"])
@@ -1326,4 +1364,8 @@ class AdminSupportMessageCreateView(APIView):
             ticket.status = "in_progress"
             ticket.save(update_fields=["status", "updated_at"])
 
+<<<<<<< HEAD
         return Response(SupportMessageSerializer(message).data, status=status.HTTP_201_CREATED)
+=======
+        return Response(SupportMessageSerializer(message).data, status=status.HTTP_201_CREATED)        
+>>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
