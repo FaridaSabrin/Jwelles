@@ -14,10 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-<<<<<<< HEAD
 import VerifyEmail from "./pages/VerifyEmail";
-=======
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
@@ -46,11 +43,8 @@ export default function App() {
 
           <Route path="/register" element={<Register />} />
 
-<<<<<<< HEAD
           <Route path="/verify-email" element={<VerifyEmail />} />
 
-=======
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
           <Route path="/products" element={<Products />} />
 
           <Route
@@ -126,8 +120,4 @@ export default function App() {
       <Footer />
     </BrowserRouter>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440

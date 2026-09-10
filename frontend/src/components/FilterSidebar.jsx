@@ -83,11 +83,7 @@ export function FilterFields({ filters, onChange, onClear, purityOptions = [] })
       {primaryCategories.length > 0 && (
         <Section title="Category">
           <OptionList
-<<<<<<< HEAD
             options={primaryCategories.map((c) => ({ label: c.name, value: c.slug }))}
-=======
-            options={primaryCategories.map((c) => ({ label: c.name, value: c.name }))}
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
             activeValue={filters.category || ""}
             onSelect={(v) => onChange("category", v)}
           />

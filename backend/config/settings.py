@@ -3,10 +3,7 @@ Django settings for config project.
 """
 
 from pathlib import Path
-<<<<<<< HEAD
 import logging
-=======
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 import os
 
 from dotenv import load_dotenv
@@ -25,15 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-<<<<<<< HEAD
 # Module-level logger for settings-time diagnostics (e.g. missing Brevo
 # credentials). Real handler/formatter config lives in LOGGING below; this
 # just needs `logging` configured enough that the message reaches stderr,
 # which Render captures regardless.
 _settings_logger = logging.getLogger("config.settings")
 
-=======
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 
 # =========================================================
 # SECURITY
@@ -471,7 +465,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 
 # =========================================================
-<<<<<<< HEAD
 # EMAIL (Brevo Transactional REST API)
 # =========================================================
 #
@@ -524,13 +517,6 @@ if not EMAIL_CONFIGURED:
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
     f"{BREVO_SENDER_NAME} <{BREVO_SENDER_EMAIL}>" if BREVO_SENDER_EMAIL else "webmaster@localhost",
-=======
-# EMAIL
-# =========================================================
-
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 )
 
 
@@ -550,7 +536,6 @@ if not DEBUG:
 
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
-<<<<<<< HEAD
     SECURE_HSTS_PRELOAD = True
 
 
@@ -611,6 +596,3 @@ LOGGING = {
         },
     },
 }
-=======
-    SECURE_HSTS_PRELOAD = True
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440

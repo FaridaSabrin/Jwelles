@@ -70,12 +70,7 @@ export default function Navbar() {
   const isJewelleryActive = () => {
     if (location.pathname !== "/products") return false;
     const searchParams = new URLSearchParams(location.search);
-<<<<<<< HEAD
     return searchParams.has("gender") || searchParams.has("metal_type");
-=======
-    return searchParams.has("gender") || searchParams.has("metal_type") || 
-           (!searchParams.has("category") && !searchParams.has("sort") && !searchParams.has("discount"));
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
   };
 
   // Check if Collections tab should be active
@@ -242,9 +237,4 @@ export default function Navbar() {
       <CartDrawer />
     </>
   );
-<<<<<<< HEAD
 }
-=======
-}
-
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440

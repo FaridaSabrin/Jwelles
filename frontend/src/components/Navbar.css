@@ -190,10 +190,6 @@
   align-items: center;
   gap: 4px;
   transition: color 0.2s var(--ease);
-<<<<<<< HEAD
-=======
-  
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 }
 
 .navbar-links a:hover,
@@ -202,23 +198,14 @@
 }
 
 /* Active state for navigation links */
-<<<<<<< HEAD
 .navbar-links a.active
 {
-=======
-.navbar-links a.active,
-.navbar-mega-btn.active {
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
   color: var(--gold-dark);
 }
 
 .navbar-mega-trigger {
   position: static;
-<<<<<<< HEAD
   color: inherit;
-=======
-  color: var(--gold);
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
 }
 
 /* ---- Collections dropdown ---- */

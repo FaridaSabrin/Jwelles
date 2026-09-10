@@ -15,11 +15,7 @@ export default function CollectionsMegaMenu() {
             {!loading && primaryCategories.length === 0 && <li className="mega-menu-empty">Categories coming soon</li>}
             {primaryCategories.map((cat) => (
               <li key={cat.id}>
-<<<<<<< HEAD
                 <Link to={`/products?category=${encodeURIComponent(cat.slug)}`}>{cat.name}</Link>
-=======
-                <Link to={`/products?category=${encodeURIComponent(cat.name)}`}>{cat.name}</Link>
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
               </li>
             ))}
           </ul>
@@ -41,13 +37,8 @@ export default function CollectionsMegaMenu() {
           <ul>
             <li><Link to="/products?sort=newest">New Arrivals</Link></li>
             <li><Link to="/products?discount=true">Special Offers</Link></li>
-<<<<<<< HEAD
             <li><Link to="/products?best_seller=true">Best Sellers</Link></li>
             <li><Link to="/products?max_price=10000">Under Budget</Link></li>
-=======
-            <li><Link to="/products?sort=popular">Best Sellers</Link></li>
-            <li><Link to="/products?sort=price_asc">Under Budget</Link></li>
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
           </ul>
         </div>
 

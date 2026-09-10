@@ -6,16 +6,11 @@ urlpatterns = [
     path("products/<int:pk>/", views.ProductDetailView.as_view()), 
     path("categories/", views.CategoryListView.as_view()),
     path("auth/register/", views.RegisterView.as_view()), 
-<<<<<<< HEAD
     path("auth/verify-email/", views.VerifyEmailOTPView.as_view()),
     path("auth/resend-otp/", views.ResendOTPView.as_view()),
     path("auth/login/", views.LoginView.as_view()), 
     path("auth/logout/", views.LogoutView.as_view()), 
     path("auth/admin/destroy-token/<int:user_id>/", views.AdminDestroyTokenView.as_view()),
-=======
-    path("auth/login/", views.LoginView.as_view()), 
-    path("auth/logout/", views.LogoutView.as_view()), 
->>>>>>> 44b3f4f25f8dec5b5792013489c733fe2dfd9440
     path("profile/", views.ProfileView.as_view()),
     path("cart/", views.CartView.as_view()), 
     path("cart/items/", views.CartItemCreateView.as_view()), 
