@@ -1,0 +1,271 @@
+.auth-header {
+  margin-bottom: var(--sp-6);
+}
+
+.auth-header h1 {
+  margin-bottom: 6px;
+}
+
+.auth-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--error-bg);
+  color: var(--error);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  margin-bottom: var(--sp-5);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.auth-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+.input-leading-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.input.has-icon {
+  padding-left: 40px;
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-row-end {
+  justify-content: flex-end;
+}
+
+.auth-inline-link {
+  font-size: 0.8rem;
+}
+
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.password-strength-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.password-strength-track span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.25s var(--ease);
+}
+
+.password-strength-track span[data-level="0"],
+.password-strength-track span[data-level="1"] {
+  background: var(--error);
+}
+
+.password-strength-track span[data-level="2"] {
+  background: #c9902b;
+}
+
+.password-strength-track span[data-level="3"] {
+  background: #a8b23e;
+}
+
+.password-strength-track span[data-level="4"] {
+  background: var(--success);
+}
+
+.password-strength small {
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.checkbox-row a {
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: var(--sp-6);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.auth-switch a {
+  color: var(--gold-dark);
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .auth-name-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   OTP VERIFICATION STYLES
+   ============================================ */
+
+/* OTP Input Group */
+.otp-input-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+/* Individual OTP Input Box */
+.otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  border: 2px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all 0.2s var(--ease);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.otp-input:focus {
+  border-color: var(--gold-dark);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.otp-input.has-error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Verify Icon Container */
+.verify-icon,
+.verify-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.verify-icon {
+  background: #f8f0d4;
+  color: var(--gold-dark);
+}
+
+.verify-success-icon {
+  background: #d4edda;
+  color: #28a745;
+}
+
+/* Verify Resend Section */
+.verify-resend {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.verify-resend .btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--gold-dark);
+  text-decoration: none;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s var(--ease);
+  font-size: 0.88rem;
+}
+
+.verify-resend .btn-link:hover:not(:disabled) {
+  background: #f8f0d4;
+}
+
+.verify-resend .btn-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner Animation */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Button Spinner */
+.btn-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Mobile Responsive Adjustments for OTP */
+@media (max-width: 480px) {
+  .otp-input-group {
+    gap: 8px;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .verify-icon,
+  .verify-success-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .verify-icon svg,
+  .verify-success-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+}

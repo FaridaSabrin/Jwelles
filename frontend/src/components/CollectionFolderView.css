@@ -1,0 +1,542 @@
+.folder-view {
+  width: 100%;
+  margin-top: 32px;
+  background: #ffffff;
+  border: 1px solid #e7e2d8;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.folder-header {
+  min-height: 72px;
+  padding: 16px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #eee9df;
+  background: #fffdf9;
+}
+
+.folder-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.folder-header-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  background: #faf5e8;
+  color: #b58a18;
+}
+
+.folder-header h3 {
+  margin: 0;
+  color: #1c1c1c;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.folder-header p {
+  margin: 3px 0 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.folder-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.folder-close-btn {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+  color: #555;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.folder-close-btn:hover {
+  background: #f1eee7;
+  color: #1c1c1c;
+}
+
+/* =========================
+   UNLOCKED BADGE
+========================= */
+
+.unlocked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  background: #f5f1e6;
+  color: #967015;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* =========================
+   PASSWORD GATE
+========================= */
+
+.password-gate {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 55px 24px 60px;
+
+  text-align: center;
+}
+
+.password-icon {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #faf5e8;
+  color: #b58a18;
+}
+
+.password-gate h3 {
+  margin: 0 0 8px;
+
+  font-size: 21px;
+  font-weight: 600;
+
+  color: #1b1b1b;
+}
+
+.password-gate > p {
+  margin: 0 0 26px;
+
+  color: #777;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.password-form {
+  text-align: left;
+}
+
+.password-form label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #333;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.password-form input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 13px 14px;
+
+  border: 1px solid #d9d4ca;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #222;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.password-form input:focus {
+  border-color: #c49a2e;
+  box-shadow: 0 0 0 3px rgba(196, 154, 46, 0.1);
+}
+
+.password-form input.error {
+  border-color: #c94b4b;
+}
+
+.password-form input:disabled {
+  background: #f6f6f6;
+  cursor: not-allowed;
+}
+
+.password-error {
+  margin: 7px 0 0;
+
+  color: #c0392b;
+  font-size: 12px;
+}
+
+.unlock-btn {
+  width: 100%;
+
+  margin-top: 16px;
+  padding: 13px 18px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #1c1c1c;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.unlock-btn:hover:not(:disabled) {
+  background: #333333;
+  transform: translateY(-1px);
+}
+
+.unlock-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.folder-loading {
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  color: #777;
+  font-size: 13px;
+}
+
+.folder-loading p {
+  margin: 0;
+}
+
+.folder-spinner {
+  width: 25px;
+  height: 25px;
+
+  border: 2px solid #e6e0d5;
+  border-top-color: #b58a18;
+
+  border-radius: 50%;
+
+  animation: folderSpin 0.8s linear infinite;
+}
+
+@keyframes folderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   EMPTY FOLDER
+========================= */
+
+.empty-folder {
+  padding: 55px 24px;
+
+  text-align: center;
+}
+
+.empty-folder-icon {
+  width: 64px;
+  height: 64px;
+
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #faf7f0;
+  color: #b58a18;
+}
+
+.empty-folder h4 {
+  margin: 0 0 8px;
+
+  color: #222;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.empty-folder p {
+  max-width: 420px;
+
+  margin: 0 auto;
+
+  color: #777;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================
+   COLLECTION LIST
+========================= */
+
+.folder-collections {
+  width: 100%;
+}
+
+.folder-collection-item {
+  border-bottom: 1px solid #eee9df;
+}
+
+.folder-collection-item:last-child {
+  border-bottom: none;
+}
+
+.folder-collection-item.expanded {
+  background: #fffdfa;
+}
+
+.folder-collection-header {
+  width: 100%;
+
+  padding: 18px 20px;
+
+  display: flex;
+  align-items: center;
+
+  border: none;
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.folder-collection-header:hover {
+  background: #faf7f0;
+}
+
+.collection-arrow {
+  width: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #8d8d8d;
+}
+
+.folder-collection-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.folder-collection-name {
+  color: #202020;
+  font-size: 15px;
+  font-weight: 600;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collection-count {
+  color: #888;
+  font-size: 11px;
+}
+
+/* =========================
+   PRODUCTS INSIDE COLLECTION
+========================= */
+
+.folder-collection-products {
+  padding: 0 20px 24px;
+}
+
+.collection-products-header {
+  margin: 4px 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.collection-products-header h4 {
+  margin: 0;
+
+  color: #222;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.collection-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 7px 10px;
+
+  border: 1px solid #ded8cd;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: #555;
+
+  font-size: 11px;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.collection-back-btn:hover {
+  border-color: #c49a2e;
+  color: #8f6d13;
+  background: #fffdf7;
+}
+
+.collection-product-grid {
+  display: grid;
+
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(210px, 1fr)
+  );
+
+  gap: 20px;
+}
+
+.collection-products-loading {
+  min-height: 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  color: #777;
+  font-size: 13px;
+}
+
+.no-products {
+  padding: 30px 15px;
+
+  text-align: center;
+
+  border: 1px dashed #ddd6ca;
+  border-radius: 8px;
+
+  background: #fffefa;
+}
+
+.no-products p {
+  margin: 0;
+
+  color: #888;
+  font-size: 13px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+  .folder-header {
+    padding: 14px 15px;
+  }
+
+  .folder-header h3 {
+    font-size: 15px;
+  }
+
+  .folder-header-actions {
+    gap: 6px;
+  }
+
+  .unlocked-badge {
+    display: none;
+  }
+
+  .password-gate {
+    padding: 40px 20px 45px;
+  }
+
+  .folder-collection-header {
+    padding: 16px 14px;
+  }
+
+  .folder-collection-products {
+    padding: 0 14px 20px;
+  }
+
+  .collection-products-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .collection-product-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

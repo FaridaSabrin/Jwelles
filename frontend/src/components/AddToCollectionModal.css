@@ -1,0 +1,277 @@
+.collection-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0);
+  z-index: 99998;
+  transition: background 0.3s ease;
+  pointer-events: none;
+}
+
+.collection-drawer-overlay.open {
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.collection-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -2px 0 20px rgba(0, 0, 0, 0.15);
+  z-index: 99999;
+  pointer-events: auto;
+}
+
+.collection-drawer.open {
+  transform: translateX(0);
+}
+
+.collection-drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 60px;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.collection-drawer-header h2 {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.back-btn,
+.close-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.back-btn {
+  color: #666;
+}
+
+.back-btn:hover {
+  color: #d4af37;
+  background: #f5f5f5;
+}
+
+.close-btn {
+  color: #999;
+}
+
+.close-btn:hover {
+  color: #1a1a1a;
+  background: #f5f5f5;
+}
+
+.collection-drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #fafafa;
+  -webkit-overflow-scrolling: touch;
+}
+
+.create-collection-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: #ffffff;
+  border: 2px dashed #d4af37;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #d4af37;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+  pointer-events: auto;
+}
+
+.create-collection-btn:hover {
+  background: #faf7f2;
+  border-color: #c9910a;
+}
+
+.collection-section {
+  margin-bottom: 20px;
+}
+
+.collection-section-header {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.collections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collection-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e8e8e8;
+  pointer-events: auto;
+}
+
+.collection-card:hover {
+  background: #faf7f2;
+  border-color: #d4af37;
+}
+
+.collection-card.selected {
+  background: #faf7f2;
+  border-color: #d4af37;
+}
+
+.collection-thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f5f5f5;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d4af37;
+}
+
+.collection-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collection-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.collection-info h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.collection-info h3 .lock-icon {
+  color: #d4af37;
+  font-size: 12px;
+}
+
+.collection-meta {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loading-spinner {
+  color: #d4af37;
+  font-size: 12px;
+}
+
+.collection-drawer-footer {
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.done-btn {
+  width: 100%;
+  padding: 12px;
+  background: #d4af37;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.done-btn:hover {
+  background: #c9910a;
+}
+
+.no-collections,
+.loading {
+  text-align: center;
+  color: #999;
+  padding: 40px 16px;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .collection-drawer {
+    width: 100vw;
+  }
+
+  .collection-drawer-header {
+    padding: 12px 16px;
+  }
+
+  .collection-drawer-header h2 {
+    font-size: 16px;
+  }
+
+  .collection-drawer-content {
+    padding: 12px;
+  }
+}

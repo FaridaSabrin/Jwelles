@@ -1,0 +1,46 @@
+.topbar {
+  background: var(--ink);
+  color: #f3eadd;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.topbar::-webkit-scrollbar {
+  display: none;
+}
+
+.topbar-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+  padding: 0 var(--sp-4);
+  white-space: nowrap;
+}
+
+.topbar-item {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #f3eadd;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-dot {
+  color: var(--gold-light);
+}
+
+@media (max-width: 640px) {
+  .topbar-track {
+    padding: 0 var(--sp-3);
+  }
+
+  .topbar-item {
+    font-size: 0.62rem;
+  }
+}
