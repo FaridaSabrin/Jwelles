@@ -1,294 +1,209 @@
 const API_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/+$/, "") ||
-  "http://localhost:8000/api/v1";
+  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
-// ==================== COOKIE HELPERS ====================
+// Cookie helper functions
+function setCookie(name, value, days = 7) {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+}
 
-const getCookie = (name) => {
-  const cookies = document.cookie ? document.cookie.split("; ") : [];
-
-  for (const cookie of cookies) {
-    const [key, ...valueParts] = cookie.split("=");
-
-    if (key === name) {
-      return decodeURIComponent(valueParts.join("="));
+function getCookie(name) {
+  const cookies = document.cookie.split(";");
+  for (let cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.trim().split("=");
+    if (cookieName === name) {
+      return decodeURIComponent(cookieValue);
     }
   }
-
   return null;
-};
+}
 
-const deleteCookie = (name) => {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
-};
+function deleteCookie(name) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+}
 
-// ==================== API REQUEST ====================
+async function request(path, options = {}) {
+  const token = getCookie("auth_token"); // Cookie se token lo
+  const isFormData = options.body instanceof FormData;
 
-const request = async (endpoint, options = {}) => {
-  const url = `${API_URL}${endpoint}`;
-
-  const config = {
-    credentials: "include",
+  const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(token ? { Authorization: `Token ${token}` } : {}),
+      ...options.headers,
     },
-  };
-
-  try {
-    const response = await fetch(url, config);
-
-    const contentType = response.headers.get("content-type");
-
-    let data;
-
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      data = await response.text();
-    }
-
-    if (!response.ok) {
-      const error = new Error(
-        data?.detail ||
-          data?.message ||
-          data?.error ||
-          `Request failed with status ${response.status}`
-      );
-
-      error.status = response.status;
-      error.data = data;
-
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error);
-    throw error;
-  }
-};
-
-// ==================== QUERY HELPER ====================
-
-const toQuery = (params = {}) => {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== "" &&
-      value !== false
-    ) {
-      searchParams.append(key, value);
-    }
   });
 
-  const queryString = searchParams.toString();
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
 
-  return queryString ? `?${queryString}` : "";
-};
+    throw new Error(
+      body.detail ||
+        Object.values(body).flat().join(" ") ||
+        "Request failed."
+    );
+  }
 
-// ==================== PRODUCTS ====================
+  return response.status === 204 ? null : response.json();
+}
 
+function toQuery(params = {}) {
+  const cleaned = Object.entries(params).filter(
+    ([, v]) => v !== undefined && v !== null && v !== ""
+  );
+
+  return new URLSearchParams(cleaned).toString();
+}
+
+// PRODUCTS & CATEGORIES
 export const getProducts = (params = {}) =>
-  request(`/products/${toQuery(params)}`);
+  request(`/products/?${toQuery(params)}`);
 
 export const getProduct = (id) =>
   request(`/products/${id}/`);
 
-export const getProductBySlug = (slug) =>
-  request(`/products/slug/${slug}/`);
-
-export const searchProducts = (query) =>
-  request(`/products/search/${toQuery({ q: query })}`);
-
-// ==================== CATEGORIES ====================
-
 export const getCategories = () =>
   request("/categories/");
 
-export const getCategory = (id) =>
-  request(`/categories/${id}/`);
-
-export const getCategoryProducts = (category, params = {}) =>
-  request(`/products/${toQuery({ category, ...params })}`);
-
-// ==================== AUTH ====================
-
-export const register = (userData) =>
-  request("/auth/register/", {
-    method: "POST",
-    body: JSON.stringify(userData),
-  });
-
-export const login = (credentials) =>
+// AUTH
+export const loginUser = (data) =>
   request("/auth/login/", {
     method: "POST",
-    body: JSON.stringify(credentials),
+    body: JSON.stringify(data),
   });
 
-export const logout = () =>
-  request("/auth/logout/", {
+export const registerUser = (data) =>
+  request("/auth/register/", {
     method: "POST",
+    body: JSON.stringify(data),
   });
 
-export const getCurrentUser = () =>
-  request("/auth/me/");
-
-export const sendOTP = (email) =>
-  request("/auth/send-otp/", {
+export const verifyEmail = (email, otp) =>
+  request("/auth/verify-email/", {
     method: "POST",
-    body: JSON.stringify({ email }),
-  });
-
-export const verifyOTP = (email, otp) =>
-  request("/auth/verify-otp/", {
-    method: "POST",
-    body: JSON.stringify({
-      email,
-      otp,
-    }),
+    body: JSON.stringify({ email, otp }),
   });
 
 export const resendOTP = (email) =>
   request("/auth/resend-otp/", {
     method: "POST",
-    body: JSON.stringify({
-      email,
-    }),
-  });
-
-export const forgotPassword = (email) =>
-  request("/auth/forgot-password/", {
-    method: "POST",
     body: JSON.stringify({ email }),
   });
 
-export const resetPassword = (data) =>
-  request("/auth/reset-password/", {
+export const getProfile = () =>
+  request("/profile/");
+
+export const logoutUser = () =>
+  request("/auth/logout/", {
     method: "POST",
-    body: JSON.stringify(data),
   });
 
-// ==================== CART ====================
-
+// CART
 export const getCart = () =>
   request("/cart/");
 
-export const addToCart = (productId, quantity = 1, size = null) =>
-  request("/cart/add/", {
+export const addCartItem = (product_id, quantity = 1) =>
+  request("/cart/items/", {
     method: "POST",
     body: JSON.stringify({
-      product_id: productId,
+      product_id,
       quantity,
-      size,
     }),
   });
 
-export const updateCartItem = (itemId, quantity) =>
-  request(`/cart/${itemId}/`, {
+export const updateCartItem = (id, quantity) =>
+  request(`/cart/items/${id}/`, {
     method: "PATCH",
     body: JSON.stringify({
       quantity,
     }),
   });
 
-export const removeFromCart = (itemId) =>
-  request(`/cart/${itemId}/`, {
+export const deleteCartItem = (id) =>
+  request(`/cart/items/${id}/`, {
     method: "DELETE",
   });
 
-export const clearCart = () =>
-  request("/cart/clear/", {
-    method: "DELETE",
-  });
-
-// ==================== WISHLIST ====================
-
+// WISHLIST
 export const getWishlist = () =>
   request("/wishlist/");
 
-export const addToWishlist = (productId) =>
-  request("/wishlist/add/", {
+export const addWishlistItem = (product_id) =>
+  request("/wishlist/", {
     method: "POST",
     body: JSON.stringify({
-      product_id: productId,
+      product_id,
     }),
   });
 
-export const removeFromWishlist = (productId) =>
-  request(`/wishlist/${productId}/`, {
+export const deleteWishlistItem = (id) =>
+  request(`/wishlist/${id}/`, {
     method: "DELETE",
   });
 
-// ==================== WISHLIST COLLECTIONS ====================
-
-export const getCollections = () =>
+// WISHLIST COLLECTIONS
+export const getWishlistCollections = () =>
   request("/wishlist/collections/");
 
-export const getCollection = (id) =>
-  request(`/wishlist/collections/${id}/`);
-
-export const createCollection = (data) =>
+export const createWishlistCollection = (data) =>
   request("/wishlist/collections/", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
-export const updateCollection = (id, data) =>
+export const getWishlistCollection = (id) =>
+  request(`/wishlist/collections/${id}/`);
+
+export const updateWishlistCollection = (id, data) =>
   request(`/wishlist/collections/${id}/`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 
-export const deleteCollection = (id) =>
+export const deleteWishlistCollection = (id) =>
   request(`/wishlist/collections/${id}/`, {
     method: "DELETE",
   });
 
 export const addProductToCollection = (collectionId, productId) =>
-  request(`/wishlist/collections/${collectionId}/products/`, {
+  request(`/wishlist/collections/${collectionId}/items/`, {
     method: "POST",
     body: JSON.stringify({
       product_id: productId,
     }),
   });
 
-export const removeProductFromCollection = (
-  collectionId,
-  productId
-) =>
+export const removeProductFromCollection = (collectionId, productId) =>
   request(
-    `/wishlist/collections/${collectionId}/products/${productId}/`,
+    `/wishlist/collections/${collectionId}/items/${productId}/`,
     {
       method: "DELETE",
     }
   );
 
-export const verifyCollectionPassword = (
-  collectionId,
-  password
-) =>
-  request(
-    `/wishlist/collections/${collectionId}/verify-password/`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        password,
-      }),
-    }
-  );
+export const getSharedCollection = (token) =>
+  request(`/wishlist/shared/${token}/`, {
+    headers: {},
+  });
 
-// ==================== ADDRESSES ====================
+export const getPublicCollection = (id) =>
+  request(`/wishlist/public/${id}/`, {
+    headers: {},
+  });
 
+export const unlockPrivateCollections = (password) =>
+  request("/wishlist/collections/unlock/", {
+    method: "POST",
+    body: JSON.stringify({
+      password,
+    }),
+  });
+
+// ADDRESSES
 export const getAddresses = () =>
   request("/addresses/");
-
-export const getAddress = (id) =>
-  request(`/addresses/${id}/`);
 
 export const createAddress = (data) =>
   request("/addresses/", {
@@ -307,7 +222,15 @@ export const deleteAddress = (id) =>
     method: "DELETE",
   });
 
-// ==================== ORDERS ====================
+// ORDERS
+export const createOrder = (address, couponCode = "") =>
+  request("/orders/", {
+    method: "POST",
+    body: JSON.stringify({
+      address,
+      coupon_code: couponCode,
+    }),
+  });
 
 export const getOrders = () =>
   request("/orders/");
@@ -315,62 +238,95 @@ export const getOrders = () =>
 export const getOrder = (id) =>
   request(`/orders/${id}/`);
 
-export const createOrder = (data) =>
-  request("/orders/", {
+// REVIEWS
+export const submitReview = (data) =>
+  request("/reviews/", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
-export const cancelOrder = (id) =>
-  request(`/orders/${id}/cancel/`, {
+// CUSTOMIZATION
+export const submitCustomization = (data) =>
+  request("/customization/", {
     method: "POST",
-  });
-
-// ==================== REVIEWS ====================
-
-export const getProductReviews = (productId) =>
-  request(`/products/${productId}/reviews/`);
-
-export const createReview = (productId, data) =>
-  request(`/products/${productId}/reviews/`, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-
-// ==================== CUSTOMIZATION ====================
-
-export const createCustomization = (data) =>
-  request("/customizations/", {
-    method: "POST",
-    body: JSON.stringify(data),
+    body: data,
   });
 
 export const getCustomizations = () =>
-  request("/customizations/");
+  request("/customization/");
 
 export const getCustomization = (id) =>
-  request(`/customizations/${id}/`);
+  request(`/customization/${id}/`);
 
-// ==================== PINCODE / SERVICEABILITY ====================
-
-export const checkServiceability = (pincode) =>
-  request(`/serviceability/${pincode}/`);
-
+// PINCODE SERVICEABILITY
 export const checkPincode = (pincode) =>
-  request(`/pincode/?pincode=${encodeURIComponent(pincode)}`);
+  request(
+    `/serviceability/pincode/?pincode=${encodeURIComponent(pincode)}`
+  );
 
-// ==================== COUPONS ====================
+export const getServiceability = (pincode) =>
+  request(
+    `/serviceability/pincode/?pincode=${encodeURIComponent(pincode)}`
+  );
 
-export const validateCoupon = (code, cartTotal = 0) =>
+export const lookupPincode = (pincode) =>
+  request(
+    `/serviceability/pincode/?pincode=${encodeURIComponent(pincode)}`
+  );
+
+export const validatePincode = (pincode) =>
+  request(
+    `/serviceability/pincode/?pincode=${encodeURIComponent(pincode)}`
+  );
+
+// COUPONS
+export const getAvailableCoupons = (pincode, subtotal) =>
+  request(
+    `/coupons/available/?pincode=${encodeURIComponent(
+      pincode
+    )}&subtotal=${subtotal || 0}`
+  );
+
+export const getCoupons = (pincode, subtotal) =>
+  request(
+    `/coupons/available/?pincode=${encodeURIComponent(
+      pincode
+    )}&subtotal=${subtotal || 0}`
+  );
+
+export const validateCoupon = (code, pincode, subtotal) =>
   request("/coupons/validate/", {
     method: "POST",
     body: JSON.stringify({
       code,
-      cart_total: cartTotal,
+      pincode: String(pincode),
+      subtotal: subtotal || 0,
     }),
   });
 
-// ==================== SUPPORT / HELP DESK ====================
+export const applyCoupon = (code, pincode, subtotal) =>
+  request("/coupons/validate/", {
+    method: "POST",
+    body: JSON.stringify({
+      code,
+      pincode: String(pincode),
+      subtotal: subtotal || 0,
+    }),
+  });
+
+export const checkCoupon = (code, pincode, subtotal) =>
+  request("/coupons/validate/", {
+    method: "POST",
+    body: JSON.stringify({
+      code,
+      pincode: String(pincode),
+      subtotal: subtotal || 0,
+    }),
+  });
+
+// SUPPORT TICKETS
+export const getMySupportTickets = (params = {}) =>
+  request(`/support/tickets/?${toQuery(params)}`);
 
 export const createSupportTicket = (data) =>
   request("/support/tickets/", {
@@ -378,13 +334,10 @@ export const createSupportTicket = (data) =>
     body: JSON.stringify(data),
   });
 
-export const getSupportTickets = () =>
-  request("/support/tickets/");
+export const getSupportTicket = (ticketId) =>
+  request(`/support/tickets/${ticketId}/`);
 
-export const getSupportTicket = (id) =>
-  request(`/support/tickets/${id}/`);
-
-export const addSupportMessage = (ticketId, message) =>
+export const sendSupportMessage = (ticketId, message) =>
   request(`/support/tickets/${ticketId}/messages/`, {
     method: "POST",
     body: JSON.stringify({
@@ -392,6 +345,16 @@ export const addSupportMessage = (ticketId, message) =>
     }),
   });
 
-// ==================== DEFAULT EXPORT ====================
+export const closeSupportTicket = (ticketId) =>
+  request(`/support/tickets/${ticketId}/close/`, {
+    method: "POST",
+  });
+
+// Cookie helpers export
+export {
+  setCookie,
+  getCookie,
+  deleteCookie,
+};
 
 export default API_URL;
