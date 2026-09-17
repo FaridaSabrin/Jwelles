@@ -160,3 +160,13 @@
     padding: var(--sp-7) var(--sp-4);
   }
 }
+.material-subheading {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted, #6b6b6b);
+  margin: 8px 0 14px;
+}
+.material-subheading-spaced {
+  margin-top: 28px;
+}

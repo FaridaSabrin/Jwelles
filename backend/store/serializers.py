@@ -3,17 +3,27 @@ from django.utils import timezone
 from rest_framework import serializers
 from .models import (Address, CartItem, Category, Coupon, CustomizationRequest,
                     DeliveryServiceArea, EmailVerificationOTP, Order, OrderItem, PincodeLocation,
-                    Product, ProductImage, Review, SupportMessage, SupportTicket,
+                    PasswordResetOTP, PasswordResetToken,
+                    Product, ProductImage, ProductTag, Review, SupportMessage, SupportTicket,
                     WishlistItem, WishlistCollection, WishlistCollectionItem)
 
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    is_support_staff = serializers.SerializerMethodField()
+
     class Meta:
         model = get_user_model()
-        fields = ("id", "username", "name", "email")
+        fields = ("id", "username", "name", "email", "is_staff", "is_support_staff")
+
     def get_name(self, obj):
         return obj.get_full_name() or obj.username
+
+    def get_is_support_staff(self, obj):
+        return (
+            obj.is_superuser
+            or obj.groups.filter(name="Support Staff").exists()
+        )
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -22,14 +32,21 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = ("id", "image", "alt_text", "position")
 
 
+class ProductTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductTag
+        fields = ("id", "name", "slug", "kind")
+
+
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
+    tags = ProductTagSerializer(many=True, read_only=True)
     discount_percentage = serializers.ReadOnlyField()
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ("id", "name", "description", "price", "original_price", "discount_percentage", "image", "images", "stock", "category", "metal_type", "purity", "weight", "gender", "material", "stone_type", "sizes", "is_available", "is_featured", "is_best_seller", "average_rating", "review_count", "created_at", "updated_at")
+        fields = ("id", "name", "description", "price", "original_price", "discount_percentage", "image", "images", "stock", "category", "metal_type", "purity", "weight", "gender", "material", "stone_type", "sizes", "is_available", "is_featured", "is_best_seller", "back_in_stock", "tags", "average_rating", "review_count", "created_at", "updated_at")
     def get_average_rating(self, obj): return round(getattr(obj, "average_rating", 0) or 0, 1)
     def get_review_count(self, obj): return getattr(obj, "review_count", 0) or 0
 
@@ -495,3 +512,59 @@ class AdminUpdateSupportTicketSerializer(serializers.ModelSerializer):
             if new_status == "closed" and not instance.closed_at:
                 instance.closed_at = timezone.now()
         return super().update(instance, validated_data)
+
+        
+
+# ============================================================
+# PASSWORD RESET SERIALIZERS
+# ============================================================
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.lower().strip()
+
+
+class VerifyResetOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_email(self, value):
+        return value.lower().strip()
+
+
+class ResendResetOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.lower().strip()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    reset_token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True, min_length=8)
+    confirm_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate(self, data):
+        if data["new_password"] != data["confirm_password"]:
+            raise serializers.ValidationError(
+                {"confirm_password": "Passwords do not match."}
+            )
+
+        try:
+            token = PasswordResetToken.objects.select_related("user").get(
+                token=data["reset_token"]
+            )
+        except PasswordResetToken.DoesNotExist:
+            raise serializers.ValidationError(
+                {"reset_token": "Invalid or expired reset token."}
+            )
+
+        if not token.is_valid():
+            raise serializers.ValidationError(
+                {"reset_token": "Reset token has expired. Please start again."}
+            )
+
+        data["_token"] = token
+        return data

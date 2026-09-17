@@ -32,6 +32,7 @@ class Category(models.Model):
         choices=(
             ("metal", "Metal"),
             ("jewellery", "Jewellery type"),
+            ("stone", "Stone"),          # <-- ADDED for Shop-by-Material
         ),
         default="jewellery",
     )
@@ -43,6 +44,39 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProductTag(models.Model):
+    """
+    Reusable tag/attribute mechanism for cross-cutting product attributes
+    such as occasions (wedding, engagement, ...), styles (daily, office, ...),
+    and special markers (corporate gift, limited edition, ...).
+
+    A product may have multiple tags; each tag has a `kind` so the API can
+    filter by category of tag (e.g. all "occasion" tags) without needing
+    many separate boolean fields.
+    """
+    TAG_KIND_CHOICES = (
+        ("occasion", "Occasion"),
+        ("style", "Style"),
+        ("gift", "Gift"),
+        ("special", "Special"),
+    )
+
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=120, unique=True)
+    kind = models.CharField(max_length=20, choices=TAG_KIND_CHOICES, default="occasion")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["kind", "name"]
+        constraints = [
+            models.UniqueConstraint(fields=["kind", "slug"], name="unique_tag_kind_slug"),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_kind_display()})"
 
 
 class Product(models.Model):
@@ -81,8 +115,20 @@ class Product(models.Model):
     is_best_seller = models.BooleanField(default=False)
     image = models.URLField(blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
+    # Tracks the last known stock level BEFORE the most recent stock change.
+    # When a product transitions from 0 -> positive, `back_in_stock` flips to True.
+    previous_stock = models.PositiveIntegerField(default=0)
+    back_in_stock = models.BooleanField(
+        default=False,
+        help_text="Set automatically when stock goes from 0 to >0.",
+    )
     category = models.CharField(max_length=100, blank=True)
     is_available = models.BooleanField(default=True)
+    tags = models.ManyToManyField(
+        ProductTag,
+        related_name="products",
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -97,6 +143,29 @@ class Product(models.Model):
                 2,
             )
         return 0
+
+    def save(self, *args, **kwargs):
+        """
+        Detect restock transitions (previous stock == 0 -> new stock > 0)
+        so `back_in_stock` reflects real inventory history. On the very
+        first save (no pk yet) we simply snapshot the initial stock.
+        """
+        if self.pk:
+            try:
+                old = Product.objects.get(pk=self.pk)
+            except Product.DoesNotExist:
+                old = None
+            if old is not None:
+                self.previous_stock = old.stock
+                if old.stock == 0 and self.stock > 0:
+                    self.back_in_stock = True
+                elif self.stock == 0:
+                    # Out of stock again — clear the flag so it only shows
+                    # for the current restock window.
+                    self.back_in_stock = False
+        else:
+            self.previous_stock = self.stock
+        super().save(*args, **kwargs)
 
 
 class ProductImage(models.Model):
@@ -865,3 +934,100 @@ class EmailVerificationOTP(models.Model):
         self.save()
         remaining = self.MAX_ATTEMPTS - self.attempts
         return False, f"Invalid OTP. {remaining} attempts remaining."
+
+        
+
+# ============================================================
+# PASSWORD RESET MODELS
+# ============================================================
+
+class PasswordResetOTP(models.Model):
+    """Separate OTP model for password reset — kept logically isolated from
+    registration OTPs, but reuses the same hashing/expiry pattern."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        related_name="password_reset_otp",
+        on_delete=models.CASCADE,
+    )
+    otp_hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    last_sent_at = models.DateTimeField(auto_now_add=True)
+
+    MAX_ATTEMPTS = 5
+    OTP_VALIDITY_MINUTES = 10
+    RESEND_COOLDOWN_SECONDS = 60
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def can_resend(self):
+        return timezone.now() >= self.last_sent_at + timedelta(
+            seconds=self.RESEND_COOLDOWN_SECONDS
+        )
+
+    def set_otp(self, raw_otp):
+        self.otp_hash = make_password(raw_otp)
+        self.expires_at = timezone.now() + timedelta(
+            minutes=self.OTP_VALIDITY_MINUTES
+        )
+        self.attempts = 0
+        self.is_used = False
+        self.last_sent_at = timezone.now()
+        self.save()
+
+    def check_otp(self, raw_otp):
+        if self.is_used:
+            return False, "This OTP has already been used. Please request a new OTP."
+        if self.attempts >= self.MAX_ATTEMPTS:
+            return False, "Too many incorrect attempts. Please request a new OTP."
+        if self.is_expired():
+            return False, "OTP has expired. Please request a new OTP."
+        if check_password(raw_otp, self.otp_hash):
+            self.is_used = True
+            self.save(update_fields=["is_used"])
+            return True, "OTP verified successfully."
+        self.attempts += 1
+        self.save(update_fields=["attempts"])
+        remaining = self.MAX_ATTEMPTS - self.attempts
+        return False, f"Invalid OTP. {remaining} attempts remaining."
+
+
+class PasswordResetToken(models.Model):
+    """Short-lived token that ONLY authorizes password reset — never used
+    for normal authentication. Mirrors the existing project pattern of
+    storing opaque tokens (e.g. WishlistCollection.share_token)."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="password_reset_tokens",
+        on_delete=models.CASCADE,
+    )
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    EXPIRY_MINUTES = 15
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    @classmethod
+    def create_for_user(cls, user):
+        cls.objects.filter(user=user, is_used=False).update(is_used=True)
+        return cls.objects.create(
+            user=user,
+            token=secrets.token_urlsafe(48),
+            expires_at=timezone.now() + timedelta(minutes=cls.EXPIRY_MINUTES),
+        )
+
+    def is_valid(self):
+        return (not self.is_used) and timezone.now() <= self.expires_at
+
+    def consume(self):
+        self.is_used = True
+        self.save(update_fields=["is_used"])

@@ -5,12 +5,23 @@ urlpatterns = [
     path("products/", views.ProductListView.as_view()), 
     path("products/<int:pk>/", views.ProductDetailView.as_view()), 
     path("categories/", views.CategoryListView.as_view()),
+    path("market-prices/", views.MarketPricesView.as_view()),
+    path("tags/", views.ProductTagListView.as_view()),
     path("auth/register/", views.RegisterView.as_view()), 
     path("auth/verify-email/", views.VerifyEmailOTPView.as_view()),
     path("auth/resend-otp/", views.ResendOTPView.as_view()),
     path("auth/login/", views.LoginView.as_view()), 
     path("auth/logout/", views.LogoutView.as_view()), 
     path("auth/admin/destroy-token/<int:user_id>/", views.AdminDestroyTokenView.as_view()),
+
+    # ============================================================
+    # PASSWORD RESET (NEW)
+    # ============================================================
+    path("auth/forgot-password/", views.ForgotPasswordView.as_view()),
+    path("auth/verify-reset-otp/", views.VerifyResetOTPView.as_view()),
+    path("auth/resend-reset-otp/", views.ResendResetOTPView.as_view()),
+    path("auth/reset-password/", views.ResetPasswordView.as_view()),
+
     path("profile/", views.ProfileView.as_view()),
     path("cart/", views.CartView.as_view()), 
     path("cart/items/", views.CartItemCreateView.as_view()), 
@@ -43,6 +54,7 @@ urlpatterns = [
     path("support/tickets/<str:ticket_id>/close/", views.SupportTicketCloseView.as_view()),
     # Support Tickets (admin — staff only)
     path("admin/support/tickets/", views.AdminSupportTicketListView.as_view()),
+    path("admin/support/tickets/stats/", views.SupportTicketStatsView.as_view()),
     path("admin/support/tickets/<str:ticket_id>/", views.AdminSupportTicketDetailView.as_view()),
     path("admin/support/tickets/<str:ticket_id>/messages/", views.AdminSupportMessageCreateView.as_view()),
 ]

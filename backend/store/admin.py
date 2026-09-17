@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import (Address, Cart, CartItem, Category, Coupon, CouponUsage,
                     CustomizationRequest, DeliveryServiceArea, LocationDiscount,
                     Order, OrderItem, PincodeLocation, Product, ProductImage,
-                    Review, SupportMessage, SupportTicket, WishlistItem,
+                    ProductTag, Review, SupportMessage, SupportTicket, WishlistItem,
                     WishlistCollection, WishlistCollectionItem)
 
 
@@ -14,11 +14,20 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
+@admin.register(ProductTag)
+class ProductTagAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "kind", "is_active")
+    list_filter = ("kind", "is_active")
+    search_fields = ("name", "slug")
+    prepopulated_fields = {"slug": ("name",)}
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "price", "stock", "is_available", "is_featured")
-    list_filter = ("is_available", "is_featured", "is_best_seller")
+    list_display = ("name", "price", "stock", "is_available", "is_featured", "back_in_stock")
+    list_filter = ("is_available", "is_featured", "is_best_seller", "back_in_stock")
     search_fields = ("name", "category")
+    filter_horizontal = ("tags",)
 
 
 @admin.register(ProductImage)

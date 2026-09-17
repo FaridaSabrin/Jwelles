@@ -67,9 +67,16 @@ function OptionList({ options, activeValue, onSelect, valueKey = "value", labelK
 }
 
 export function FilterFields({ filters, onChange, onClear, purityOptions = [] }) {
-  const { primaryCategories, metalCategories } = useCategories();
+  const { primaryCategories, metalCategories, stoneOptions } = useCategories();
 
   const activeBucket = PRICE_BUCKETS.find((b) => b.min === (filters.min_price || "") && b.max === (filters.max_price || ""));
+
+  // Prefer DB-backed stones; fall back to stoneOptions provided by the
+  // context (which itself falls back to a static list).
+  const stoneChoices = (stoneOptions || []).map((s) => ({
+    label: s.name,
+    value: s.name,
+  }));
 
   return (
     <div className="filter-fields">
@@ -96,6 +103,19 @@ export function FilterFields({ filters, onChange, onClear, purityOptions = [] })
             options={metalCategories.map((c) => ({ label: c.name, value: c.name }))}
             activeValue={filters.metal_type || ""}
             onSelect={(v) => onChange("metal_type", v)}
+          />
+        </Section>
+      )}
+
+      {/* Material = stone filter. Backend matches Product.stone_type
+          case-insensitively, so values here are safe regardless of the
+          exact casing used in the DB. */}
+      {stoneChoices.length > 0 && (
+        <Section title="Stone" defaultOpen={false}>
+          <OptionList
+            options={stoneChoices}
+            activeValue={filters.stone_type || ""}
+            onSelect={(v) => onChange("stone_type", v)}
           />
         </Section>
       )}
@@ -179,4 +199,3 @@ export default function FilterSidebar(props) {
     </aside>
   );
 }
-

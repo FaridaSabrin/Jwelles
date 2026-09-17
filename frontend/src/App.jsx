@@ -2,6 +2,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  useLocation,
 } from "react-router-dom";
 
 import "./App.css";
@@ -15,6 +16,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOTP from "./pages/VerifyResetOTP";
+import ResetPassword from "./pages/ResetPassword";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
@@ -28,11 +32,21 @@ import CustomJewelry from "./pages/CustomJewelry";
 import CustomerSupport from "./pages/CustomerSupport";
 import SupportTicketDetails from "./pages/SupportTicketDetails";
 
-export default function App() {
+// Support Dashboard imports
+import SupportStaffRoute from "./components/auth/SupportStaffRoute";
+import SupportDashboardLayout from "./components/support/SupportDashboardLayout";
+import SupportDashboard from "./pages/support-dashboard/SupportDashboard";
+import SupportDashboardTickets from "./pages/support-dashboard/SupportDashboardTickets";
+import SupportDashboardTicketDetail from "./pages/support-dashboard/SupportDashboardTicketDetail";
+
+function AppShell() {
+  const location = useLocation();
+  const isSupportDashboard = location.pathname.startsWith("/support-dashboard");
+
   return (
-    <BrowserRouter>
-      <FestivePopup />
-      <Navbar />
+    <>
+      {!isSupportDashboard && <FestivePopup />}
+      {!isSupportDashboard && <Navbar />}
 
       <main>
         <Routes>
@@ -44,6 +58,13 @@ export default function App() {
           <Route path="/register" element={<Register />} />
 
           <Route path="/verify-email" element={<VerifyEmail />} />
+
+          {/* ---------- Password Reset ---------- */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          <Route path="/verify-reset-otp" element={<VerifyResetOTP />} />
+
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route path="/products" element={<Products />} />
 
@@ -112,12 +133,37 @@ export default function App() {
             }
           />
 
+          {/* ---------- Support Dashboard (separate layout) ---------- */}
+          <Route
+            path="/support-dashboard"
+            element={
+              <SupportStaffRoute>
+                <SupportDashboardLayout />
+              </SupportStaffRoute>
+            }
+          >
+            <Route index element={<SupportDashboard />} />
+            <Route path="tickets" element={<SupportDashboardTickets />} />
+            <Route
+              path="tickets/:ticketId"
+              element={<SupportDashboardTicketDetail />}
+            />
+          </Route>
+
           <Route path="/:slug" element={<InfoPage />} />
 
         </Routes>
       </main>
 
-      <Footer />
+      {!isSupportDashboard && <Footer />}
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   );
 }

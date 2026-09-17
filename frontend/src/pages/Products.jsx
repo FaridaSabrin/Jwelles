@@ -14,10 +14,30 @@ import SortDropdown from "../components/SortDropdown";
 import Pagination from "../components/Pagination";
 import "./Products.css";
 
-const FILTER_KEYS = ["search", "category", "metal_type", "purity", "gender", "min_price", "max_price", "rating", "discount", "min_discount", "available", "best_seller"];
+const FILTER_KEYS = [
+  "search", "category", "metal_type", "stone_type", "purity", "gender",
+  "min_price", "max_price", "rating", "discount", "min_discount",
+  "available", "best_seller", "occasion", "style", "tag", "back_in_stock",
+];
 const PAGE_SIZE = 12;
 
 const SERVER_SORT = { newest: "newest", price_asc: "price_asc", price_desc: "price_desc", popular: "popular", best_rated: "best_rated" };
+
+// Human-readable labels for the active chip UI. Anything not listed here
+// simply shows its raw query value, which is fine for prices / search.
+const FILTER_LABELS = {
+  occasion: "Occasion",
+  style: "Style",
+  tag: "Tag",
+  back_in_stock: "Back in Stock",
+  best_seller: "Best Seller",
+  discount: "On Offer",
+  available: "In Stock",
+  gender: "For",
+  metal_type: "Metal",
+  stone_type: "Stone",
+  purity: "Purity",
+};
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -115,10 +135,18 @@ export default function Products() {
     return filters.category.charAt(0).toUpperCase() + filters.category.slice(1);
   }, [categories, filters.category]);
 
-  const activeChips = FILTER_KEYS.filter((k) => filters[k] && k !== "available" && k !== "min_discount")
-    .map((k) => ({ key: k, label: k === "category" ? categoryLabel : filters[k] }))
+  // Active chips — mirrors FILTER_KEYS but hides internal-only params.
+  const activeChips = FILTER_KEYS
+    .filter((k) => filters[k] && !["available", "min_discount", "back_in_stock", "best_seller"].includes(k))
+    .map((k) => {
+      const prefix = FILTER_LABELS[k] ? `${FILTER_LABELS[k]}: ` : "";
+      const value = k === "category" ? categoryLabel : filters[k];
+      return { key: k, label: `${prefix}${value}` };
+    })
     .concat(filters.available === "true" ? [{ key: "available", label: "In Stock" }] : [])
-    .concat(filters.min_discount ? [{ key: "min_discount", label: `${filters.min_discount}%+ Off` }] : []);
+    .concat(filters.min_discount ? [{ key: "min_discount", label: `${filters.min_discount}%+ Off` }] : [])
+    .concat(filters.back_in_stock === "true" ? [{ key: "back_in_stock", label: "Back in Stock" }] : [])
+    .concat(filters.best_seller === "true" ? [{ key: "best_seller", label: "Best Seller" }] : []);
 
   const title = filters.category || filters.search
     ? (filters.search ? `Results for "${filters.search}"` : categoryLabel)
@@ -193,4 +221,3 @@ export default function Products() {
     </div>
   );
 }
-

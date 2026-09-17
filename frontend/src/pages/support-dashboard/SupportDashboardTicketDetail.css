@@ -1,0 +1,150 @@
+.sd-detail {
+  max-width: 1100px;
+}
+
+.sd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.88rem;
+  margin-bottom: 12px;
+}
+
+.sd-back:hover {
+  text-decoration: underline;
+}
+
+.sd-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sd-detail-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.sd-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .sd-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sd-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.sd-panel h2 {
+  font-size: 1rem;
+  margin: 0 0 12px;
+}
+
+.sd-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.88rem;
+}
+
+.sd-info-row:last-child {
+  border-bottom: none;
+}
+
+.sd-info-row > span {
+  color: #6b7280;
+}
+
+.sd-conversation {
+  margin-top: 4px;
+}
+
+.sd-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sd-message {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.sd-message.is-admin {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.sd-message.is-customer {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.sd-message-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.sd-message p {
+  margin: 0;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sd-reply {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sd-textarea {
+  resize: vertical;
+  font-family: inherit;
+  width: 100%;
+}
+
+.sd-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.sd-reply-actions .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sd-success {
+  color: #065f46;
+  font-size: 0.85rem;
+}

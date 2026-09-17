@@ -12,6 +12,7 @@ import { formatINR } from "../utils/formatINR";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "../components/Skeletons";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
+import LiveMarketPrices from "../components/LiveMarketPrices";
 import "./Home.css";
 
 const GENDER_TILES = [
@@ -22,7 +23,13 @@ const GENDER_TILES = [
 ];
 
 export default function Home() {
-  const { primaryCategories, metalCategories, loading: categoriesLoading } = useCategories();
+  const {
+    primaryCategories,
+    metalCategories,
+    stoneOptions,
+    loading: categoriesLoading,
+  } = useCategories();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -63,12 +70,18 @@ export default function Home() {
 
           {!categoriesLoading && primaryCategories.length > 0 && (
             <div className="category-grid">
-              {primaryCategories.map((cat) => <CategoryCard key={cat.id} category={cat} />)}
+              {primaryCategories.map((cat) => (
+                <CategoryCard key={cat.id} category={cat} />
+              ))}
             </div>
           )}
 
           {!categoriesLoading && primaryCategories.length === 0 && (
-            <EmptyState icon={Gem} title="Categories coming soon" message="Our category catalogue is being curated." />
+            <EmptyState
+              icon={Gem}
+              title="Categories coming soon"
+              message="Our category catalogue is being curated."
+            />
           )}
         </div>
       </section>
@@ -87,12 +100,18 @@ export default function Home() {
 
           {!loading && !error && featured.length > 0 && (
             <div className="product-grid">
-              {featured.slice(0, 8).map((p) => <ProductCard key={p.id} product={p} />)}
+              {featured.slice(0, 8).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
             </div>
           )}
 
           {!loading && !error && featured.length === 0 && (
-            <EmptyState icon={Gem} title="No featured products yet" message="Check back soon for handpicked favourites." />
+            <EmptyState
+              icon={Gem}
+              title="No featured products yet"
+              message="Check back soon for handpicked favourites."
+            />
           )}
 
           <div className="section-cta">
@@ -115,36 +134,75 @@ export default function Home() {
             {loading && <ProductGridSkeleton />}
             {!loading && !error && newArrivals.length > 0 && (
               <div className="product-grid">
-                {newArrivals.map((p) => <ProductCard key={p.id} product={p} />)}
+                {newArrivals.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
               </div>
             )}
             {!loading && !error && newArrivals.length === 0 && (
-              <EmptyState icon={Gem} title="No products available yet" message="New pieces will appear here as soon as they're added." />
+              <EmptyState
+                icon={Gem}
+                title="No products available yet"
+                message="New pieces will appear here as soon as they're added."
+              />
             )}
           </div>
         </section>
       )}
 
-      {/* SHOP BY METAL */}
-      {!categoriesLoading && metalCategories.length > 0 && (
+      {/* SHOP BY MATERIAL */}
+      {!categoriesLoading && (metalCategories.length > 0 || stoneOptions.length > 0) && (
         <section className="section section-alt">
           <div className="container">
             <div className="section-heading">
               <span className="eyebrow">Precious Materials</span>
-              <h2 className="heading-lg">Shop by Metal</h2>
+              <h2 className="heading-lg">Shop by Material</h2>
+              <p className="section-sub">
+                Explore pieces by what they are made from — metals and stones.
+              </p>
             </div>
 
-            <div className="metal-grid">
-              {metalCategories.map((cat) => (
-                <Link key={cat.id} to={`/products?metal_type=${encodeURIComponent(cat.name)}`} className="metal-tile">
-                  <ProductImage src={cat.image} alt={cat.name} />
-                  <span>{cat.name}</span>
-                </Link>
-              ))}
-            </div>
+            {metalCategories.length > 0 && (
+              <>
+                <h3 className="material-subheading">Metals</h3>
+                <div className="metal-grid">
+                  {metalCategories.map((cat) => (
+                    <Link
+                      key={cat.id}
+                      to={`/products?metal_type=${encodeURIComponent(cat.name)}`}
+                      className="metal-tile"
+                    >
+                      <ProductImage src={cat.image} alt={cat.name} />
+                      <span>{cat.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {stoneOptions.length > 0 && (
+              <>
+                <h3 className="material-subheading material-subheading-spaced">Stones</h3>
+                <div className="metal-grid">
+                  {stoneOptions.map((stone) => (
+                    <Link
+                      key={stone.id}
+                      to={`/products?stone_type=${encodeURIComponent(stone.name)}`}
+                      className="metal-tile"
+                    >
+                      <ProductImage src={stone.image} alt={stone.name} />
+                      <span>{stone.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </section>
       )}
+
+      {/* LIVE MARKET PRICES */}
+      <LiveMarketPrices />
 
       {/* BEST SELLERS */}
       {!loading && !error && bestSellers.length > 0 && (
@@ -156,7 +214,9 @@ export default function Home() {
             </div>
 
             <div className="product-grid">
-              {bestSellers.map((p) => <ProductCard key={p.id} product={p} />)}
+              {bestSellers.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
             </div>
           </div>
         </section>
@@ -185,18 +245,23 @@ export default function Home() {
       {promoProduct && (
         <section className="promo-banner">
           <div className="promo-banner-media">
-            <ProductImage src={promoProduct.images?.[0]?.image || promoProduct.image} alt={promoProduct.name} />
+            <ProductImage
+              src={promoProduct.images?.[0]?.image || promoProduct.image}
+              alt={promoProduct.name}
+            />
           </div>
           <div className="promo-banner-content">
             <span className="eyebrow">Limited Time</span>
-            <h2 className="heading-lg">Up to {Math.round(promoProduct.discount_percentage)}% Off Selected Pieces</h2>
+            <h2 className="heading-lg">
+              Up to {Math.round(promoProduct.discount_percentage)}% Off Selected Pieces
+            </h2>
             <p>Starting from {formatINR(promoProduct.price)} — while stocks last.</p>
-            <Link to="/products?discount=true" className="btn btn-gold btn-lg">Shop the Sale</Link>
+            <Link to="/products?discount=true" className="btn btn-gold btn-lg">
+              Shop the Sale
+            </Link>
           </div>
         </section>
       )}
     </div>
   );
 }
-
-

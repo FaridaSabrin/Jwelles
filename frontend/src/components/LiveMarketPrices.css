@@ -1,0 +1,208 @@
+/* =====================================================
+   LIVE MARKET PRICES
+   Elegant, minimal — matches JWELLES design language.
+   ===================================================== */
+
+.market-section .market-heading {
+  margin-bottom: 28px;
+}
+
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.market-tile {
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.market-tile:hover {
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.market-tile.is-stale        { border-color: rgba(200, 150, 0, 0.35); }
+.market-tile.is-unavailable  { opacity: 0.75; }
+
+.market-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.market-tile-name {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted, #6b6b6b);
+}
+
+.market-tile-status {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-muted, #555);
+}
+.market-tile-status.is-live        { background: rgba(40, 160, 90, 0.12); color: rgb(30, 130, 70); }
+.market-tile-status.is-stale       { background: rgba(200, 150, 0, 0.15); color: rgb(150, 110, 0); }
+.market-tile-status.is-unavailable { background: rgba(0, 0, 0, 0.06);    color: var(--color-muted, #555); }
+
+.market-tile-price {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-text, #111);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.market-tile-price-muted { color: var(--color-muted, #999); }
+
+.market-tile-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted, #6b6b6b);
+}
+
+.market-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.market-change-up   { color: rgb(30, 130, 70); }
+.market-change-down { color: rgb(180, 55, 55); }
+.market-change-flat { color: var(--color-muted, #999); }
+
+.market-tile-note {
+  font-size: 11px;
+  color: var(--color-muted, #777);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.market-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--color-muted, #6b6b6b);
+}
+
+.market-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+.market-refresh:hover { background: rgba(0, 0, 0, 0.05); }
+
+.market-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  color: var(--color-muted, #555);
+  font-size: 14px;
+}
+
+.market-stones-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.02);
+  border-left: 3px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted, #666);
+}
+.market-stones-note svg { flex-shrink: 0; margin-top: 2px; }
+
+/* Lightweight skeleton lines (no new dependency) */
+.skeleton-line {
+  display: inline-block;
+  background: linear-gradient(90deg, rgba(0,0,0,0.05), rgba(0,0,0,0.10), rgba(0,0,0,0.05));
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 4px;
+}
+.skeleton-line-sm { width: 60px; height: 12px; }
+.skeleton-line-lg { width: 130px; height: 22px; }
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 640px) {
+  .market-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .market-tile { padding: 14px; }
+  .market-tile-price { font-size: 18px; }
+}
+
+/* =====================================================
+   STONE TILES (Diamond + future gemstone benchmarks)
+   ===================================================== */
+
+.market-stones-heading {
+  margin-top: 32px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted, #6b6b6b);
+  font-weight: 500;
+}
+
+.market-grid-stones {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.market-tile-stone .market-tile-note {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.market-tile-status.is-reference {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-muted, #666);
+}
+
+.market-tile.is-reference {
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .market-stones-heading {
+    margin-top: 24px;
+  }
+  .market-grid-stones {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}

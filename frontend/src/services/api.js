@@ -92,6 +92,34 @@ export const resendOTP = (email) =>
     body: JSON.stringify({ email }),
   });
 
+// ============================================================
+// PASSWORD RESET
+// ============================================================
+
+export const forgotPassword = (email) =>
+  request("/auth/forgot-password/", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+
+export const verifyResetOTP = (email, otp) =>
+  request("/auth/verify-reset-otp/", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
+  });
+
+export const resendResetOTP = (email) =>
+  request("/auth/resend-reset-otp/", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+
+export const resetPassword = (data) =>
+  request("/auth/reset-password/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
 export const getProfile = () =>
   request("/profile/");
 
@@ -356,5 +384,13 @@ export {
   getCookie,
   deleteCookie,
 };
+
+// MARKET PRICES (backend-proxied; never calls Metals.Dev from the browser)
+export const getMarketPrices = () =>
+  request("/market-prices/");
+
+// PRODUCT TAGS
+export const getProductTags = (kind) =>
+  request(`/tags/${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`);
 
 export default API_URL;

@@ -97,7 +97,7 @@ export default function Login() {
         </div>
 
         <div className="auth-row auth-row-end">
-          <Link to="/contact" className="btn-ghost auth-inline-link">Forgot password?</Link>
+          <Link to="/forgot-password" className="btn-ghost auth-inline-link">Forgot password?</Link>
         </div>
 
         <button className="btn btn-primary btn-lg btn-block" type="submit" disabled={loading}>
@@ -111,4 +111,3 @@ export default function Login() {
     </AuthLayout>
   );
 }
-

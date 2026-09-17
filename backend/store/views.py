@@ -7,6 +7,7 @@ import random
 import string
 import re
 
+from .services.market_pricing import get_market_prices
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import transaction
@@ -16,11 +17,21 @@ from rest_framework import generics, permissions, serializers, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
-from .models import Address, Cart, CartItem, Category, Coupon, CouponUsage, CustomizationRequest, DeliveryServiceArea, EmailVerificationOTP, LocationDiscount, Order, OrderItem, PincodeLocation, Product, Review, SupportMessage, SupportTicket, WishlistItem, WishlistCollection, WishlistCollectionItem
-from .serializers import (AddressSerializer, AdminSupportTicketDetailSerializer, AdminSupportTicketListSerializer, AdminUpdateSupportTicketSerializer, CartItemSerializer, CategorySerializer, CreateSupportTicketSerializer, CustomizationRequestSerializer, OrderSerializer, ProductSerializer, RegisterSerializer, ResendOTPSerializer, ReviewSerializer, SupportMessageCreateSerializer, SupportMessageSerializer, SupportTicketDetailSerializer, SupportTicketListSerializer, UserSerializer, VerifyEmailOTPSerializer, WishlistItemSerializer, WishlistCollectionSerializer, WishlistCollectionDetailSerializer, WishlistCollectionPublicSerializer, WishlistCollectionItemSerializer)
+from .models import Address, Cart, CartItem, Category, Coupon, CouponUsage, CustomizationRequest, DeliveryServiceArea, EmailVerificationOTP, LocationDiscount, Order, OrderItem, PasswordResetOTP, PasswordResetToken, PincodeLocation, Product, ProductTag, Review, SupportMessage, SupportTicket, WishlistItem, WishlistCollection, WishlistCollectionItem
+
+from .serializers import (AddressSerializer, AdminSupportTicketDetailSerializer, AdminSupportTicketListSerializer, AdminUpdateSupportTicketSerializer, CartItemSerializer, CategorySerializer, CreateSupportTicketSerializer, CustomizationRequestSerializer, ForgotPasswordSerializer, OrderSerializer, ProductSerializer, ProductTagSerializer, RegisterSerializer, ResendOTPSerializer, ResendResetOTPSerializer, ResetPasswordSerializer, ReviewSerializer, SupportMessageCreateSerializer, SupportMessageSerializer, SupportTicketDetailSerializer, SupportTicketListSerializer, UserSerializer, VerifyEmailOTPSerializer, VerifyResetOTPSerializer, WishlistItemSerializer, WishlistCollectionSerializer, WishlistCollectionDetailSerializer, WishlistCollectionPublicSerializer, WishlistCollectionItemSerializer)
+
+from .permissions import IsSupportStaff
 
 logger = logging.getLogger(__name__)
+
+
+class SupportTicketPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 def annotated_products():
@@ -131,21 +142,80 @@ Jwelles Team
 class ProductListView(generics.ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
+
     def get_queryset(self):
         q = annotated_products()
         p = self.request.query_params
-        if p.get("search"): q = q.filter(Q(name__icontains=p["search"]) | Q(description__icontains=p["search"]))
-        for field in ("category", "metal_type", "purity", "gender"):
+
+        # Text search
+        if p.get("search"):
+            q = q.filter(Q(name__icontains=p["search"]) | Q(description__icontains=p["search"]))
+
+        # Exact-match fields (category, metal_type, stone_type, purity, gender).
+        # `metal_type`/`stone_type` also accept the shorthand `metal`/`stone`
+        # because the frontend uses both at different points.
+        #
+        # NOTE: category means the *form* of jewellery (Rings, Necklaces,
+        # ...) and material means *what it's made from* (Gold, Diamond,
+        # ...). These are independent filters and compose (AND) safely.
+        for field in ("category", "metal_type", "stone_type", "purity", "gender"):
             value = p.get(field) or p.get(field.replace("_type", ""))
-            if value: q = q.filter(**{f"{field}__iexact": value})
-        if p.get("min_price"): q = q.filter(price__gte=p["min_price"])
-        if p.get("max_price"): q = q.filter(price__lte=p["max_price"])
-        if p.get("available") == "true": q = q.filter(stock__gt=0)
-        if p.get("rating"): q = q.filter(average_rating__gte=p["rating"])
-        if p.get("discount") == "true": q = q.filter(original_price__gt=0).filter(original_price__gt=F("price"))
-        if p.get("best_seller") == "true": q = q.filter(is_best_seller=True)
+            if value:
+                q = q.filter(**{f"{field}__iexact": value})
+
+        # Price range
+        if p.get("min_price"):
+            q = q.filter(price__gte=p["min_price"])
+        if p.get("max_price"):
+            q = q.filter(price__lte=p["max_price"])
+
+        # Availability — note this is separate from "back in stock" (below).
+        if p.get("available") == "true":
+            q = q.filter(stock__gt=0)
+
+        # Rating
+        if p.get("rating"):
+            q = q.filter(average_rating__gte=p["rating"])
+
+        # Discount
+        if p.get("discount") == "true":
+            q = q.filter(original_price__gt=0).filter(original_price__gt=F("price"))
+
+        # Best sellers
+        if p.get("best_seller") == "true":
+            q = q.filter(is_best_seller=True)
+
+        # --- Tag-based filters ---------------------------------------------
+        # Occasion tags: wedding, engagement, anniversary, birthday,
+        # valentine, diwali. Filter by slug (case-insensitive).
+        if p.get("occasion"):
+            q = q.filter(tags__kind="occasion", tags__slug__iexact=p["occasion"]).distinct()
+
+        # Style tags: daily, office, party, traditional, modern, minimalist.
+        if p.get("style"):
+            q = q.filter(tags__kind="style", tags__slug__iexact=p["style"]).distinct()
+
+        # Generic tag filter (e.g. corporate, limited) — matches any tag kind.
+        if p.get("tag"):
+            q = q.filter(tags__slug__iexact=p["tag"]).distinct()
+
+        # --- Back in Stock -------------------------------------------------
+        # A product is "back in stock" only if it transitioned from out of
+        # stock (previous_stock == 0) to available (stock > 0). This is
+        # tracked on the model's save() and cannot be faked via `available`.
+        if p.get("back_in_stock") == "true":
+            q = q.filter(back_in_stock=True, stock__gt=0)
+
+        # Sorting
         sort = p.get("sort", "newest")
-        return q.order_by({"price_asc": "price", "price_desc": "-price", "popular": "-review_count", "best_rated": "-average_rating", "newest": "-created_at"}.get(sort, "-created_at"))
+        ordering = {
+            "price_asc": "price",
+            "price_desc": "-price",
+            "popular": "-review_count",
+            "best_rated": "-average_rating",
+            "newest": "-created_at",
+        }.get(sort, "-created_at")
+        return q.order_by(ordering)
 
 
 class ProductDetailView(generics.RetrieveAPIView):
@@ -158,6 +228,21 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
     queryset = Category.objects.filter(is_active=True)
+
+
+class ProductTagListView(generics.ListAPIView):
+    """Read-only list of all active product tags, optionally filtered by
+    `kind` (occasion / style / gift / special). Lets the frontend and admin
+    discover valid tag slugs without hardcoding them."""
+    serializer_class = ProductTagSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        qs = ProductTag.objects.filter(is_active=True)
+        kind = self.request.query_params.get("kind")
+        if kind:
+            qs = qs.filter(kind=kind)
+        return qs
 
 
 class RegisterView(APIView):
@@ -1255,35 +1340,109 @@ class SupportTicketCloseView(APIView):
 # SUPPORT TICKETS (admin-facing — staff only)
 
 class AdminSupportTicketListView(APIView):
-    """List every customer's tickets, with search + status/priority filters.
-    Gated by IsAdminUser (request.user.is_staff) — the same flag that
-    already controls access to Django Admin, so no new admin/role model is
-    introduced."""
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsSupportStaff]
 
     def get(self, request):
-        tickets = SupportTicket.objects.select_related("user", "order").prefetch_related("messages")
+        tickets = (
+            SupportTicket.objects
+            .select_related("user", "order")
+            .prefetch_related("messages")
+        )
+
         p = request.query_params
+
+        # -----------------------------
+        # Status filter
+        # -----------------------------
         if p.get("status"):
-            tickets = tickets.filter(status=p["status"])
-        if p.get("priority"):
-            tickets = tickets.filter(priority=p["priority"])
-        search = p.get("search")
-        if search:
             tickets = tickets.filter(
-                Q(ticket_id__icontains=search)
-                | Q(subject__icontains=search)
-                | Q(user__username__icontains=search)
-                | Q(user__email__icontains=search)
-                | Q(user__first_name__icontains=search)
-                | Q(user__last_name__icontains=search)
+                status=p["status"]
             )
-        return Response(AdminSupportTicketListSerializer(tickets.distinct(), many=True).data)
+
+        # -----------------------------
+        # Priority filter
+        # -----------------------------
+        if p.get("priority"):
+            tickets = tickets.filter(
+                priority=p["priority"]
+            )
+
+        # -----------------------------
+        # Category filter
+        # -----------------------------
+        if p.get("category"):
+            tickets = tickets.filter(
+                category=p["category"]
+            )
+
+        # -----------------------------
+        # Date filters
+        # -----------------------------
+        date_from = p.get("date_from")
+        date_to = p.get("date_to")
+
+        if date_from:
+            tickets = tickets.filter(
+                created_at__date__gte=date_from
+            )
+
+        if date_to:
+            tickets = tickets.filter(
+                created_at__date__lte=date_to
+            )
+
+        # -----------------------------
+        # Search ONLY by Ticket ID
+        # Supports:
+        # SUP-C0E5A06F
+        # #SUP-C0E5A06F
+        # C0E5A06F
+        # -----------------------------
+        search = p.get("search", "").strip()
+
+        if search:
+            search = search.lstrip("#").strip()
+
+            tickets = tickets.filter(
+                ticket_id__icontains=search
+            )
+
+        # -----------------------------
+        # Sorting
+        # -----------------------------
+        sort = p.get("sort", "newest")
+
+        if sort == "oldest":
+            order = "created_at"
+        else:
+            order = "-created_at"
+
+        tickets = tickets.order_by(order)
+
+        # -----------------------------
+        # Pagination
+        # -----------------------------
+        paginator = SupportTicketPagination()
+
+        page = paginator.paginate_queryset(
+            tickets,
+            request,
+            view=self,
+        )
+
+        serializer = AdminSupportTicketListSerializer(
+            page,
+            many=True,
+        )
+
+        return paginator.get_paginated_response(
+            serializer.data
+        )
 
 
 class AdminSupportTicketDetailView(APIView):
     """View any ticket's full detail, or update its status/priority."""
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsSupportStaff]
 
     def get_ticket(self, ticket_id):
         try:
@@ -1310,7 +1469,7 @@ class AdminSupportTicketDetailView(APIView):
 class AdminSupportMessageCreateView(APIView):
     """Admin reply to any customer's ticket. A reply nudges an open/awaiting
     ticket into in_progress, mirroring the customer-side auto-transition."""
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsSupportStaff]
 
     def post(self, request, ticket_id):
         try:
@@ -1327,3 +1486,328 @@ class AdminSupportMessageCreateView(APIView):
             ticket.save(update_fields=["status", "updated_at"])
 
         return Response(SupportMessageSerializer(message).data, status=status.HTTP_201_CREATED)
+
+
+
+class SupportTicketStatsView(APIView):
+    """
+    Aggregate counts per status and category for the support dashboard.
+    """
+    permission_classes = [IsSupportStaff]
+
+    def get(self, request):
+        status_counts = dict(
+            SupportTicket.objects
+            .values_list("status")
+            .annotate(total=Count("id"))
+            .values_list("status", "total")
+        )
+
+        category_counts = dict(
+            SupportTicket.objects
+            .values_list("category")
+            .annotate(total=Count("id"))
+            .values_list("category", "total")
+        )
+
+        return Response({
+            "total": SupportTicket.objects.count(),
+
+            # Status
+            "open": status_counts.get("open", 0),
+            "in_progress": status_counts.get("in_progress", 0),
+            "awaiting_customer": status_counts.get("awaiting_customer", 0),
+            "resolved": status_counts.get("resolved", 0),
+            "closed": status_counts.get("closed", 0),
+
+            # Category
+            "order_issue": category_counts.get("order_issue", 0),
+            "payment_issue": category_counts.get("payment_issue", 0),
+            "product_issue": category_counts.get("product_issue", 0),
+            "delivery_issue": category_counts.get("delivery_issue", 0),
+            "account_issue": category_counts.get("account_issue", 0),
+            "custom_jewellery_issue": category_counts.get(
+                "custom_jewellery_issue", 0
+            ),
+            "other": category_counts.get("other", 0),
+        })
+
+class MarketPricesView(APIView):
+    """
+    Public read-only endpoint that exposes live/cached/reference market
+    pricing for jewellery materials.
+
+    Design notes
+    ------------
+    - The actual provider call is made inside
+      `store.services.market_pricing.get_market_prices()`, which handles
+      caching, timeouts, and degraded states.
+    - This view never returns ₹0 / placeholder prices. It returns an
+      explicit `data_status` per material: live | cached | stale |
+      reference_required | unavailable.
+    - The Metals.Dev API key is read from Django settings (backend env
+      only) and never appears in the response.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        data = get_market_prices()
+        return Response(data, status=status.HTTP_200_OK)
+
+        
+
+# ============================================================
+# PASSWORD RESET VIEWS
+# ============================================================
+
+FORGOT_PASSWORD_GENERIC_MESSAGE = (
+    "If an account exists with this email, a verification code has been sent."
+)
+
+
+def send_password_reset_email(email, otp):
+    """
+    Sends the password-reset OTP via the same Brevo REST API path used by
+    registration. Kept as a dedicated function so the message copy stays
+    specific to password reset, while the actual Brevo transport/config
+    stays in one place.
+    """
+    if not is_valid_email(email):
+        logger.warning("Invalid email format, not sending reset OTP: %s", email)
+        return False
+
+    if not settings.EMAIL_CONFIGURED:
+        logger.error(
+            "Cannot send reset OTP to %s: Brevo is not configured.", email
+        )
+        return False
+
+    subject = "Reset Your Jwelles Password"
+    text_content = f"""Hello,
+
+We received a request to reset your Jwelles password.
+
+Your password reset verification code is: {otp}
+
+This code expires in 10 minutes.
+
+If you did not request a password reset, you can ignore this email.
+
+Best regards,
+Jwelles Team
+"""
+    html_content = text_content.replace("\n", "<br>")
+
+    payload = {
+        "sender": {
+            "name": settings.BREVO_SENDER_NAME,
+            "email": settings.BREVO_SENDER_EMAIL,
+        },
+        "to": [{"email": email}],
+        "subject": subject,
+        "htmlContent": html_content,
+        "textContent": text_content,
+    }
+    headers = {
+        "accept": "application/json",
+        "api-key": settings.BREVO_API_KEY,
+        "content-type": "application/json",
+    }
+
+    try:
+        response = requests.post(
+            settings.BREVO_API_URL,
+            json=payload,
+            headers=headers,
+            timeout=10,
+        )
+    except requests.exceptions.RequestException as e:
+        logger.error(
+            "Failed to send reset OTP to %s: network error: %s", email, e
+        )
+        return False
+
+    if response.status_code in (200, 201):
+        logger.info("Password reset OTP sent to %s", email)
+        return True
+
+    logger.error(
+        "Failed to send reset OTP to %s: Brevo %s - %s",
+        email, response.status_code, response.text[:500],
+    )
+    return False
+
+
+class ForgotPasswordView(APIView):
+    """Step 1: request a password-reset OTP.
+
+    User-enumeration protection: always returns the same generic 200
+    response — whether the email exists, doesn't exist, or is on cooldown.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = str(request.data.get("email", "")).lower().strip()
+
+        if not is_valid_email(email):
+            return Response(
+                {"message": FORGOT_PASSWORD_GENERIC_MESSAGE},
+                status=status.HTTP_200_OK,
+            )
+
+        user = get_user_model().objects.filter(email__iexact=email).first()
+        if not user:
+            return Response(
+                {"message": FORGOT_PASSWORD_GENERIC_MESSAGE},
+                status=status.HTTP_200_OK,
+            )
+
+        otp_record, created = PasswordResetOTP.objects.get_or_create(
+            user=user,
+            defaults={
+                "expires_at": timezone.now()
+                + timedelta(minutes=PasswordResetOTP.OTP_VALIDITY_MINUTES)
+            },
+        )
+        if not created and not otp_record.can_resend():
+            return Response(
+                {"message": FORGOT_PASSWORD_GENERIC_MESSAGE},
+                status=status.HTTP_200_OK,
+            )
+
+        otp = generate_otp()
+        otp_record.set_otp(otp)
+        logger.info("Password reset OTP generated for %s", user.email)
+
+        send_password_reset_email(user.email, otp)
+
+        return Response(
+            {"message": FORGOT_PASSWORD_GENERIC_MESSAGE},
+            status=status.HTTP_200_OK,
+        )
+
+
+class VerifyResetOTPView(APIView):
+    """Step 2: verify the OTP and hand back a short-lived reset_token.
+
+    NOTE: This does NOT log the user in. The reset_token is a completely
+    separate opaque credential that only works against /auth/reset-password/.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = VerifyResetOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        otp = serializer.validated_data["otp"]
+
+        user = get_user_model().objects.filter(email__iexact=email).first()
+        if not user:
+            return Response(
+                {"otp": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            otp_record = PasswordResetOTP.objects.get(user=user)
+        except PasswordResetOTP.DoesNotExist:
+            return Response(
+                {"otp": "No active reset code. Please request a new one."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        is_valid, message = otp_record.check_otp(otp)
+        if not is_valid:
+            return Response(
+                {"otp": message}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        reset_token = PasswordResetToken.create_for_user(user)
+
+        return Response(
+            {
+                "message": "OTP verified. You may now reset your password.",
+                "reset_token": reset_token.token,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResendResetOTPView(APIView):
+    """Resend the password-reset OTP (60s cooldown enforced server-side)."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResendResetOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        user = get_user_model().objects.filter(email__iexact=email).first()
+        if not user:
+            return Response(
+                {"message": FORGOT_PASSWORD_GENERIC_MESSAGE},
+                status=status.HTTP_200_OK,
+            )
+
+        try:
+            otp_record = PasswordResetOTP.objects.get(user=user)
+        except PasswordResetOTP.DoesNotExist:
+            otp_record, _ = PasswordResetOTP.objects.get_or_create(
+                user=user,
+                defaults={
+                    "expires_at": timezone.now()
+                    + timedelta(minutes=PasswordResetOTP.OTP_VALIDITY_MINUTES)
+                },
+            )
+        else:
+            if not otp_record.can_resend():
+                remaining = (
+                    otp_record.last_sent_at
+                    + timedelta(seconds=otp_record.RESEND_COOLDOWN_SECONDS)
+                    - timezone.now()
+                ).seconds
+                return Response(
+                    {
+                        "detail": f"Please wait {remaining}s before requesting a new code."
+                    },
+                    status=status.HTTP_429_TOO_MANY_REQUESTS,
+                )
+
+        otp = generate_otp()
+        otp_record.set_otp(otp)
+        logger.info("Password reset OTP re-generated for %s", user.email)
+
+        send_password_reset_email(user.email, otp)
+
+        return Response(
+            {"message": "New OTP sent to your email."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResetPasswordView(APIView):
+    """Step 3: consume the reset_token and set the new password."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token = serializer.validated_data["_token"]
+        user = token.user
+        new_password = serializer.validated_data["new_password"]
+
+        user.set_password(new_password)
+        user.save(update_fields=["password"])
+
+        token.consume()
+        PasswordResetOTP.objects.filter(user=user, is_used=False).update(
+            is_used=True
+        )
+
+        Token.objects.filter(user=user).delete()
+
+        return Response(
+            {"message": "Password reset successfully. You can now login."},
+            status=status.HTTP_200_OK,
+        )

@@ -244,6 +244,85 @@ cloudinary.config(
     api_secret=CLOUDINARY_API_SECRET,
 )
 
+# =========================================================
+# METALS.DEV MARKET PRICING  (backend-only secret)
+# =========================================================
+#
+# Server-side only. This key must NEVER be exposed to the frontend,
+# never placed in a VITE_* variable, and never logged.
+#
+# Required (Render -> Environment, and backend/.env locally):
+#   METALS_API_KEY           - Metals.Dev dashboard API key.
+#
+# Optional tuning:
+#   METALS_API_URL           - default: https://api.metals.dev/v1/latest
+#   METALS_CACHE_TTL         - seconds a fresh response stays "live"
+#                              before we try to refresh (default 45).
+#   METALS_CACHE_MAX_STALE   - seconds we will keep serving a stale
+#                              cached response when upstream is down
+#                              (default 900).
+# =========================================================
+
+METALS_API_KEY = os.getenv("METALS_API_KEY", "").strip()
+METALS_API_URL = os.getenv(
+    "METALS_API_URL",
+    "https://api.metals.dev/v1/latest",
+).strip()
+METALS_CACHE_TTL = int(os.getenv("METALS_CACHE_TTL", "45"))
+METALS_CACHE_MAX_STALE = int(os.getenv("METALS_CACHE_MAX_STALE", "900"))
+
+if not METALS_API_KEY:
+    _settings_logger.warning(
+        "METALS_API_KEY is not set. The /api/v1/market-prices/ endpoint "
+        "will report metals as 'unavailable' until it is configured."
+    )
+
+
+# =========================================================
+# STONE PRICING (OpenFacet + FX)  — backend-only
+# =========================================================
+#
+# Diamond benchmark source: OpenFacet public matrix data.
+# Currency conversion: open.er-api.com (free, no API key).
+#
+# No secrets are required for either provider, but all URLs/timeouts
+# are configurable so they can be changed without touching service code.
+# =========================================================
+
+STONE_OPENFACET_MATRIX_URL = os.getenv(
+    "STONE_OPENFACET_MATRIX_URL",
+    "https://data.openfacet.net/matrix.json",
+).strip()
+
+STONE_FX_URL = os.getenv(
+    "STONE_FX_URL",
+    "https://open.er-api.com/v6/latest/USD",
+).strip()
+
+STONE_PROVIDER_TIMEOUT = int(os.getenv("STONE_PROVIDER_TIMEOUT", "8"))
+STONE_CACHE_TTL = int(os.getenv("STONE_CACHE_TTL", "3600"))
+STONE_FX_CACHE_TTL = int(os.getenv("STONE_FX_CACHE_TTL", "43200"))
+STONE_MAX_STALE_SECONDS = int(os.getenv("STONE_MAX_STALE_SECONDS", "86400"))
+
+# =========================================================
+# CACHES
+# =========================================================
+#
+# Django's locmem cache is per-process. With a single Render worker this
+# is fine for a 30-60s TTL on market prices. If you scale to multiple
+# workers later, swap in Redis (django-redis) — no code in
+# store/services/market_pricing.py needs to change, it uses the standard
+# django.core.cache API.
+# =========================================================
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "jwelles-default",
+        "TIMEOUT": 300,
+    }
+}
+
 
 # =========================================================
 # PASSWORD VALIDATION

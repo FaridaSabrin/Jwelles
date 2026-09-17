@@ -423,3 +423,15 @@
     display: none;
   }
 }
+
+/* Shop-by-Material sub-groups inside the mega menu */
+.mega-menu-material-group + .mega-menu-material-group {
+  margin-top: 12px;
+}
+.mega-menu-subtitle {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin: 4px 0 6px;
+}
