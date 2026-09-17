@@ -4,98 +4,237 @@
   margin-top: var(--sp-9);
 }
 
-.footer-top {
-  padding: var(--sp-6) var(--sp-6) var(--sp-5);
+.footer-inner {
+  width: 100%;
+}
+
+/* =========================================
+   BRAND HEADER
+========================================= */
+
+.footer-brand-header {
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.footer-newsletter {
-  max-width: 620px;
-  margin: 0 auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 6px 0 2px;
-}
-
-.footer-newsletter .heading-sm {
-  color: #fff;
-  margin: 0;
-  line-height: 1.15;
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.footer-newsletter > p {
-  color: #cabfae;
-  font-size: 0.9rem;
-  margin: 0 0 12px 0;
-  line-height: 1.6;
+.footer-brand-content {
   max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
-@media (max-width: 700px) {
-  .footer-newsletter .heading-sm {
-    font-size: 1.15rem;
-  }
+.footer-logo {
+  display: block;
 
-  .footer-newsletter > p {
-    font-size: 0.92rem;
-    max-width: 100%;
-  }
+  margin: 0 0 14px;
+
+  color: #fff;
+
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 600;
+
+  line-height: 1.1;
 }
 
-.footer-subscribe-form {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  width: 100%;
-  max-width: 480px;
-}
+.footer-brand-description {
+  max-width: 500px;
 
-/* Input group containing icon + input */
-.input-group {
-  position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
+  margin: 0;
 
-/* Mail icon inside input */
-.search-icon {
-  position: absolute !important;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
   color: #cabfae;
-  pointer-events: none;
+
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+/* =========================================
+   SOCIALS
+========================================= */
+
+.footer-socials {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  flex-wrap: wrap;
+
+  gap: 18px;
+
+  margin-top: 20px;
+}
+
+.footer-social-icon {
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  padding: 0;
+
+  color: #efe6da;
+
+  background: transparent;
+
+  border-radius: 50%;
+
+  line-height: 0;
+
+  transition:
+    color 0.2s var(--ease),
+    transform 0.15s ease;
+}
+
+.footer-social-icon svg {
+  display: block;
+
+  width: 18px;
+  height: 18px;
+}
+
+.footer-social-icon:hover {
+  color: var(--gold);
+
+  transform: translateY(-3px);
+}
+
+/* =========================================
+   MAIN GRID
+========================================= */
+
+.footer-main-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(280px, 1.35fr);
+
+  gap: var(--sp-7);
+
+  padding: var(--sp-8) var(--sp-6);
+}
+
+.footer-col {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 9px;
+}
+
+.footer-col h4 {
+  margin: 0 0 8px;
+
+  color: var(--gold-light);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.footer-col > a {
+  display: block;
+
+  width: auto;
+
+  margin: 0;
+
+  color: #cabfae;
+
+  font-size: 0.9rem;
+  line-height: 1.45;
+
+  transition: color 0.2s var(--ease);
+}
+
+.footer-col > a:hover {
+  color: #fff;
+}
+
+/* =========================================
+   NEWSLETTER
+========================================= */
+
+.footer-newsletter {
+  min-width: 0;
+}
+
+.footer-newsletter-text {
+  max-width: 360px;
+
+  margin: 0 0 8px;
+
+  color: #cabfae;
+
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.footer-subscribe-form {
+  width: 100%;
+  max-width: 420px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 4px;
+}
+
+.footer-input-group {
+  position: relative;
+
+  flex: 1 1 auto;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+}
+
+.footer-mail-icon {
+  position: absolute !important;
+
+  left: 13px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
   z-index: 1;
+
+  color: #cabfae;
+
+  pointer-events: none;
 }
 
 .footer-subscribe-form .input {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 44px;
-  box-sizing: border-box;
-  padding-left: 40px;
-  font-size: 0.92rem;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  border-radius: 24px;
   width: 100%;
-  display: block;
+  min-width: 0;
+  height: 42px;
+
+  box-sizing: border-box;
+
+  padding: 0 12px 0 38px;
+
+  color: #fff;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border-color: rgba(255, 255, 255, 0.16);
+
+  border-radius: 22px;
+
+  font-size: 0.84rem;
 }
 
 .footer-subscribe-form .input::placeholder {
@@ -103,137 +242,55 @@
 }
 
 .footer-subscribe-form .btn {
+  min-height: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 18px;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 16px;
+
   white-space: nowrap;
-  border-radius: 24px;
-  flex-shrink: 0;
-  cursor: pointer;
+
+  border-radius: 22px;
 }
 
 .footer-subscribed {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+
   gap: 8px;
+
+  margin: 4px 0 0;
+
   color: #9fd4ac;
-  font-size: 0.9rem;
+
+  font-size: 0.88rem;
   font-weight: 600;
-  margin-top: 24px; /* Good gap from text */
-  padding: 0;
 }
 
-.footer-grid {
-  padding: var(--sp-8) var(--sp-6);
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr 1fr;
-  gap: var(--sp-6);
-  align-items: start;
-}
-
-.footer-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* flex-direction:column defaults to align-items:stretch, which was silently stretching the brand paragraph/social row (and every link) to the full — wide — column track width */
-  gap: 10px;
-  min-width: 0;
-}
-
-.footer-col h4 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold-light);
-  margin: 0 0 6px 0;
-}
-
-/* Direct-child combinator on purpose: the Shop/Customer Service/About links
-   are direct children of .footer-col, but the social icons are nested one
-   level deeper inside .footer-socials. A plain ".footer-col a" descendant
-   selector used to match BOTH — and since a class+tag selector beats the
-   single-class .footer-social-icon rule below regardless of source order,
-   it was forcing display:block;width:100% onto every social icon too,
-   stacking them one per line. Scoping to a direct child fixes that at the
-   source instead of patching it with a competing override. */
-.footer-col > a {
-  font-size: 0.9rem;
-  color: #cabfae;
-  transition: color 0.2s var(--ease);
-  display: block;
-  margin-bottom: 8px;
-  width: 100%;
-}
-
-.footer-col > a:hover {
-  color: #fff;
-}
-
-.footer-logo {
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 12px;
-  display: block;
-}
-
-.footer-brand > p {
-  color: #cabfae;
-  font-size: 0.9rem;
-  line-height: 1.65;
-  max-width: 360px;
-  margin: 12px 0;
-}
-
-.footer-socials {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; /* safety net only — three 40px icons at a 24px gap (168px total) fit in a single row down to ~320px viewports without ever needing to wrap */
-  justify-content: flex-start; /* explicit, so the icon row can never inherit/pick up space-between from a shared or future flex rule */
-  align-items: center;
-  gap: 24px;
-  margin-top: 16px;
-}
-
-.footer-social-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: transparent;
-  color: #efe6da;
-  transition: transform 0.15s ease, color 0.2s var(--ease);
-  line-height: 0;
-  padding: 0;
-}
-
-.footer-social-icon svg {
-  display: block;
-  width: 18px;
-  height: 18px;
-}
-
-.footer-social-icon:hover {
-  background: transparent;
-  color: var(--gold);
-  transform: translateY(-3px);
-}
+/* =========================================
+   BOTTOM BAR
+========================================= */
 
 .footer-bottom {
-  padding: var(--sp-5) var(--sp-6);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--sp-3);
+
+  gap: var(--sp-4);
+
+  padding: var(--sp-5) var(--sp-6);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
   color: #a89a86;
+
   font-size: 0.82rem;
 }
 
@@ -244,95 +301,115 @@
 .footer-payments {
   display: flex;
   align-items: center;
-  gap: var(--sp-5);
+
+  justify-content: flex-end;
+
   flex-wrap: wrap;
+
+  gap: var(--sp-5);
 }
 
 .footer-payments span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+
+  gap: 7px;
+
   color: #cabfae;
+
+  white-space: nowrap;
 }
 
-/* Responsive breakpoints */
+/* =========================================
+   TABLET
+========================================= */
+
 @media (max-width: 1024px) {
-  .footer-newsletter {
-    max-width: 100%;
-    padding: 0;
-  }
-  
-  .footer-grid {
+  .footer-main-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr))
+      minmax(260px, 1.2fr);
+
     gap: var(--sp-5);
+  }
+
+  .footer-brand-header,
+  .footer-main-grid,
+  .footer-bottom {
+    padding-left: var(--sp-5);
+    padding-right: var(--sp-5);
   }
 }
 
-@media (max-width: 900px) {
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--sp-6);
+/* =========================================
+   TABLET / SMALL LAPTOP
+========================================= */
+
+@media (max-width: 850px) {
+  .footer-main-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .footer-brand {
+  .footer-newsletter {
     grid-column: 1 / -1;
-  }
-  
-  .footer-newsletter {
-    text-align: left;
-  }
-}
-
-@media (max-width: 700px) {
-  .footer-top {
-    padding: var(--sp-6) var(--sp-4) var(--sp-5);
-  }
-  
-  .footer-newsletter {
-    text-align: left;
-    padding: 0;
-  }
-  
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: var(--sp-5);
-    padding: var(--sp-6) var(--sp-4);
-  }
-
-  .footer-brand {
-    grid-column: auto;
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .footer-col {
-    align-items: flex-start;
-  }
-
-  .footer-col > a {
-    text-align: left;
-  }
-
-  .footer-brand > p {
-    margin-left: 0;
-    margin-right: 0;
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 560px) {
-  .footer-top {
-    padding: var(--sp-5) var(--sp-4) var(--sp-4);
-  }
-
-  .footer-newsletter {
-    gap: 8px;
   }
 
   .footer-subscribe-form {
+    max-width: 500px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+  .footer-brand-header {
+    padding: var(--sp-6) var(--sp-4) var(--sp-5);
+  }
+
+  .footer-logo {
+    font-size: 1.6rem;
+  }
+
+  .footer-brand-description {
+    max-width: 100%;
+  }
+
+  .footer-socials {
+    gap: 14px;
+
+    margin-top: 18px;
+  }
+
+  .footer-main-grid {
+    grid-template-columns: 1fr;
+
+    gap: var(--sp-6);
+
+    padding: var(--sp-6) var(--sp-4);
+  }
+
+  .footer-newsletter {
+    grid-column: auto;
+  }
+
+  .footer-newsletter-text {
+    max-width: 100%;
+  }
+
+  .footer-subscribe-form {
+    width: 100%;
+    max-width: 100%;
+
     flex-direction: column;
-    gap: 8px;
     align-items: stretch;
-    margin-top: 16px;
+
+    gap: 8px;
+  }
+
+  .footer-input-group {
+    width: 100%;
   }
 
   .footer-subscribe-form .input,
@@ -340,21 +417,71 @@
     width: 100%;
   }
 
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: var(--sp-5);
+  .footer-subscribe-form .btn {
+    flex-shrink: 1;
   }
 
   .footer-bottom {
     flex-direction: column;
-    text-align: center;
-    align-items: center;
-    padding: var(--sp-4) var(--sp-4);
+    align-items: flex-start;
+
+    padding: var(--sp-5) var(--sp-4);
+
+    text-align: left;
   }
 
   .footer-payments {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--sp-3);
+    justify-content: flex-start;
+
+    gap: 12px 20px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+  .footer-brand-header {
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
+  }
+
+  .footer-main-grid {
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
+  }
+
+  .footer-bottom {
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
+  }
+
+  .footer-logo {
+    font-size: 1.5rem;
+  }
+
+  .footer-brand-description,
+  .footer-newsletter-text {
+    font-size: 0.84rem;
+  }
+
+  .footer-socials {
+    gap: 12px;
+  }
+
+  .footer-social-icon {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+  }
+
+  .footer-payments {
+    gap: 10px 16px;
+  }
+
+  .footer-payments span {
+    font-size: 0.76rem;
   }
 }
