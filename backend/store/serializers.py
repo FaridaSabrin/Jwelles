@@ -6,6 +6,7 @@ from .models import (Address, CartItem, Category, Coupon, CustomizationRequest,
                     PasswordResetOTP, PasswordResetToken,
                     Product, ProductImage, ProductTag, Review, SupportMessage, SupportTicket,
                     WishlistItem, WishlistCollection, WishlistCollectionItem)
+from .services.product_pricing import calculate_product_price, calculate_prices_for_products
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,14 +42,82 @@ class ProductTagSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     tags = ProductTagSerializer(many=True, read_only=True)
-    discount_percentage = serializers.ReadOnlyField()
+    discount_percentage = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
+
+    # Live pricing metadata
+    price = serializers.SerializerMethodField()
+    base_price = serializers.SerializerMethodField()
+    calculated_price = serializers.SerializerMethodField()
+    pricing_mode = serializers.SerializerMethodField()
+    pricing_source = serializers.SerializerMethodField()
+    price_updated_at = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ("id", "name", "description", "price", "original_price", "discount_percentage", "image", "images", "stock", "category", "metal_type", "purity", "weight", "gender", "material", "stone_type", "sizes", "is_available", "is_featured", "is_best_seller", "back_in_stock", "tags", "average_rating", "review_count", "created_at", "updated_at")
-    def get_average_rating(self, obj): return round(getattr(obj, "average_rating", 0) or 0, 1)
-    def get_review_count(self, obj): return getattr(obj, "review_count", 0) or 0
+        fields = (
+            "id", "name", "description",
+            "price", "original_price", "base_price", "calculated_price",
+            "discount_percentage", "image", "images", "stock",
+            "category", "metal_type", "purity", "weight", "gender",
+            "material", "stone_type", "sizes", "is_available",
+            "is_featured", "is_best_seller", "back_in_stock", "tags",
+            "average_rating", "review_count",
+            "pricing_mode", "pricing_source", "price_updated_at",
+            "making_charge_percent", "stone_value",
+            "created_at", "updated_at",
+        )
+
+    # ------------------------------------------------------------------
+    # Cached pricing result per instance — avoids recomputing the same
+    # product price across multiple method fields on the same object.
+    # ------------------------------------------------------------------
+    def _get_priced(self, obj):
+        cached = getattr(obj, "_jwelles_priced", None)
+        if cached is None:
+            cached = calculate_product_price(obj)
+            obj._jwelles_priced = cached
+        return cached
+
+    def get_price(self, obj):
+        """Return the final, authoritative price. Falls back to the stored
+        price when live pricing is not applicable or unavailable."""
+        return str(self._get_priced(obj).calculated_price)
+
+    def get_base_price(self, obj):
+        return str(self._get_priced(obj).base_price)
+
+    def get_calculated_price(self, obj):
+        return str(self._get_priced(obj).calculated_price)
+
+    def get_pricing_mode(self, obj):
+        return self._get_priced(obj).pricing_mode
+
+    def get_pricing_source(self, obj):
+        return self._get_priced(obj).pricing_source
+
+    def get_price_updated_at(self, obj):
+        return self._get_priced(obj).price_updated_at
+
+    def get_discount_percentage(self, obj):
+        """Discount is computed against the *calculated* price so it stays
+        meaningful when live pricing moves the base price around."""
+        priced = self._get_priced(obj)
+        if obj.original_price and obj.original_price > priced.calculated_price:
+            return round(
+                (obj.original_price - priced.calculated_price)
+                * 100
+                / obj.original_price,
+                2,
+            )
+        return 0
+
+    def get_average_rating(self, obj):
+        return round(getattr(obj, "average_rating", 0) or 0, 1)
+
+    def get_review_count(self, obj):
+        return getattr(obj, "review_count", 0) or 0
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -82,13 +151,15 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = OrderItem
         fields = ("id", "product", "product_name", "quantity", "price_at_purchase", "discount_at_purchase", "subtotal")
-    
+
     def get_product(self, obj):
-        """Return product with its image details for order display."""
+        """Return product with its image details for order display. Price
+        shown here is the *historical* price_at_purchase, not the current
+        live price — orders must be immutable snapshots."""
         if obj.product:
             return {
                 "id": obj.product.id,

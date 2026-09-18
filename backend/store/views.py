@@ -8,6 +8,7 @@ import string
 import re
 
 from .services.market_pricing import get_market_prices
+from .services.product_pricing import calculate_product_price, calculate_prices_for_products
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import transaction

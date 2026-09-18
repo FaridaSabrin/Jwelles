@@ -24,10 +24,44 @@ class ProductTagAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "price", "stock", "is_available", "is_featured", "back_in_stock")
-    list_filter = ("is_available", "is_featured", "is_best_seller", "back_in_stock")
+    list_display = ("name", "price", "stock", "is_available", "is_featured", "back_in_stock", "pricing_mode")
+    list_filter = ("is_available", "is_featured", "is_best_seller", "back_in_stock", "pricing_mode")
     search_fields = ("name", "category")
     filter_horizontal = ("tags",)
+    fieldsets = (
+        ("Basic Information", {
+            "fields": (
+                "name", "description", "category", "image",
+                "is_featured", "is_best_seller", "is_available",
+            )
+        }),
+        ("Pricing", {
+            "fields": (
+                "price", "original_price",
+                "pricing_mode", "making_charge_percent", "stone_value",
+            ),
+            "description": (
+                "When pricing_mode is 'auto' and the product has a recognized "
+                "metal_type + weight, the displayed price is calculated live "
+                "from the market rate. The stored 'price' is used as a "
+                "fallback when live data is unavailable, and as the sole "
+                "price when pricing_mode is 'static'."
+            ),
+        }),
+        ("Materials", {
+            "fields": (
+                "metal_type", "purity", "weight",
+                "material", "stone_type", "gender", "sizes",
+            )
+        }),
+        ("Inventory", {
+            "fields": ("stock", "previous_stock", "back_in_stock"),
+        }),
+        ("Tags", {
+            "fields": ("tags",),
+        }),
+    )
+    readonly_fields = ("previous_stock", "back_in_stock")
 
 
 @admin.register(ProductImage)

@@ -129,6 +129,45 @@ class Product(models.Model):
         related_name="products",
         blank=True,
     )
+
+    # ------------------------------------------------------------------
+    # LIVE PRICING FIELDS
+    # ------------------------------------------------------------------
+    # `pricing_mode` is set automatically by the pricing engine at read
+    # time. It is stored here only so the admin can see the last known
+    # mode; the engine recomputes it on every request.
+    pricing_mode = models.CharField(
+        max_length=20,
+        choices=(
+            ("auto", "Auto (derive from live data)"),
+            ("static", "Static (use stored price)"),
+        ),
+        default="auto",
+        help_text=(
+            "Auto: price is calculated from live market data when the "
+            "product has a recognized metal_type and a weight. Static: "
+            "the stored price is always used."
+        ),
+    )
+    # Percentage of metal value charged as making charges. 0 = none.
+    making_charge_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Making charges as % of metal value (live pricing only).",
+    )
+    # Manual stone component (INR). Used for diamonds and other stones
+    # that do not have a per-product live price. Added on top of the
+    # live metal value when both are present.
+    stone_value = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text="Manual stone value in INR (diamonds, rubies, etc.).",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
