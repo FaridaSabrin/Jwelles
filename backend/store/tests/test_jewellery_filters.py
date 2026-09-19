@@ -169,3 +169,115 @@ class JewelleryDropdownFilterTests(APITestCase):
     def test_empty_intersection(self):
         data = self._fetch(occasion="wedding", category="earrings")
         self.assertEqual(data, [])
+
+    # =====================================================================
+    # CATEGORY FILTER TESTS
+    # =====================================================================
+    # These verify that `category` filters ONLY on Product.category and is
+    # completely independent of metal_type / stone_type / material.
+
+    # --- Category-only ----------------------------------------------------
+    def test_category_rings_only(self):
+        data = self._fetch(category="rings")
+        self.assertEqual({p["name"] for p in data}, {"Wedding Gold Ring"})
+
+    def test_category_earrings_only(self):
+        data = self._fetch(category="earrings")
+        self.assertEqual({p["name"] for p in data}, {"Daily Earrings"})
+
+    def test_category_necklaces_only(self):
+        data = self._fetch(category="necklaces")
+        self.assertEqual({p["name"] for p in data}, {"Diwali Necklace"})
+
+    def test_category_pendants_only(self):
+        data = self._fetch(category="pendants")
+        self.assertEqual({p["name"] for p in data}, {"Luxury Diamond Pendant"})
+
+    def test_category_bracelets_only(self):
+        data = self._fetch(category="bracelets")
+        self.assertEqual({p["name"] for p in data}, {"Back in Stock Bracelet"})
+
+    def test_category_anklets_empty(self):
+        # No anklet in fixture — must return [], NOT fall back to metal.
+        data = self._fetch(category="anklets")
+        self.assertEqual(data, [])
+
+    def test_category_bangles_empty(self):
+        # No bangle in fixture — must return [], NOT fall back to metal.
+        data = self._fetch(category="bangles")
+        self.assertEqual(data, [])
+
+    def test_category_chains_empty(self):
+        # No chain in fixture — must return [], NOT fall back to metal.
+        data = self._fetch(category="chains")
+        self.assertEqual(data, [])
+
+    # --- Category case normalization --------------------------------------
+    def test_category_capitalized(self):
+        data = self._fetch(category="Rings")
+        self.assertEqual({p["name"] for p in data}, {"Wedding Gold Ring"})
+
+    def test_category_uppercase(self):
+        data = self._fetch(category="RINGS")
+        self.assertEqual({p["name"] for p in data}, {"Wedding Gold Ring"})
+
+    def test_category_mixed_case(self):
+        data = self._fetch(category="NeckLaces")
+        self.assertEqual({p["name"] for p in data}, {"Diwali Necklace"})
+
+    def test_category_whitespace_trimmed(self):
+        data = self._fetch(category="  rings  ")
+        self.assertEqual({p["name"] for p in data}, {"Wedding Gold Ring"})
+
+    # --- Category + metal -------------------------------------------------
+    def test_category_rings_plus_gold(self):
+        data = self._fetch(category="rings", metal_type="gold")
+        self.assertEqual({p["name"] for p in data}, {"Wedding Gold Ring"})
+
+    def test_category_rings_plus_silver(self):
+        # Ring is gold, not silver — must return [].
+        data = self._fetch(category="rings", metal_type="silver")
+        self.assertEqual(data, [])
+
+    def test_category_necklaces_plus_gold(self):
+        data = self._fetch(category="necklaces", metal_type="gold")
+        self.assertEqual({p["name"] for p in data}, {"Diwali Necklace"})
+
+    def test_category_earrings_plus_silver(self):
+        data = self._fetch(category="earrings", metal_type="silver")
+        self.assertEqual({p["name"] for p in data}, {"Daily Earrings"})
+
+    # --- Metal-only (must NOT be affected by the category fix) ------------
+    def test_metal_only_gold(self):
+        data = self._fetch(metal_type="gold")
+        names = {p["name"] for p in data}
+        self.assertIn("Wedding Gold Ring", names)
+        self.assertIn("Diwali Necklace", names)
+        self.assertNotIn("Daily Earrings", names)
+
+    def test_metal_only_silver(self):
+        data = self._fetch(metal_type="silver")
+        self.assertEqual({p["name"] for p in data}, {"Daily Earrings"})
+
+    def test_metal_only_diamond(self):
+        data = self._fetch(metal_type="diamond")
+        self.assertEqual({p["name"] for p in data}, {"Luxury Diamond Pendant"})
+
+    def test_metal_shorthand_still_works(self):
+        # Frontend sometimes sends `metal` instead of `metal_type`.
+        data = self._fetch(metal="gold")
+        names = {p["name"] for p in data}
+        self.assertIn("Wedding Gold Ring", names)
+        self.assertIn("Diwali Necklace", names)
+
+    # --- Category does NOT leak into metal filtering ----------------------
+    def test_category_does_not_match_metal_value(self):
+        # If a product has category="rings" and metal_type="gold", asking
+        # for category=gold must NOT return it (category != metal).
+        data = self._fetch(category="gold")
+        self.assertEqual(data, [])
+
+    def test_metal_does_not_match_category_value(self):
+        # Asking for metal_type=rings must NOT return the ring.
+        data = self._fetch(metal_type="rings")
+        self.assertEqual(data, [])

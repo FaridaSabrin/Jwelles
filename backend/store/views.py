@@ -152,17 +152,41 @@ class ProductListView(generics.ListAPIView):
         if p.get("search"):
             q = q.filter(Q(name__icontains=p["search"]) | Q(description__icontains=p["search"]))
 
-        # Exact-match fields (category, metal_type, stone_type, purity, gender).
-        # `metal_type`/`stone_type` also accept the shorthand `metal`/`stone`
-        # because the frontend uses both at different points.
+        # ------------------------------------------------------------------
+        # Category filter — canonical jewellery form (rings, earrings,
+        # necklaces, anklets, bangles, bracelets, pendants, chains).
         #
-        # NOTE: category means the *form* of jewellery (Rings, Necklaces,
-        # ...) and material means *what it's made from* (Gold, Diamond,
-        # ...). These are independent filters and compose (AND) safely.
-        for field in ("category", "metal_type", "stone_type", "purity", "gender"):
+        # Normalises case and whitespace, and accepts either the canonical
+        # slug (e.g. "rings") or a human-readable form (e.g. "Rings",
+        # "RINGS", " rings "). The slug is the canonical identifier stored
+        # in Product.category, but we stay lenient so older links and the
+        # product-management UI both work.
+        #
+        # IMPORTANT: this is INDEPENDENT of metal_type / stone_type /
+        # material. It must NOT fall back to metal or stone values — that
+        # was the original bug which conflated category with metal_type.
+        # ------------------------------------------------------------------
+        raw_category = (p.get("category") or "").strip()
+        if raw_category:
+            normalized = raw_category.lower().replace(" ", "-")
+            q = q.filter(
+                Q(category__iexact=raw_category)
+                | Q(category__iexact=normalized)
+            )
+
+        # ------------------------------------------------------------------
+        # Independent exact-match filters (metal_type, stone_type, purity,
+        # gender). Each also accepts the shorthand `metal` / `stone` because
+        # the frontend uses both at different points.
+        #
+        # These compose (AND) with each other and with category. If both
+        # category and metal_type are supplied, the result is
+        # "products in that category made of that metal".
+        # ------------------------------------------------------------------
+        for field in ("metal_type", "stone_type", "purity", "gender"):
             value = p.get(field) or p.get(field.replace("_type", ""))
             if value:
-                q = q.filter(**{f"{field}__iexact": value})
+                q = q.filter(**{f"{field}__iexact": value.strip()})
 
         # Price range
         if p.get("min_price"):

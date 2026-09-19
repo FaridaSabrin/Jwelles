@@ -1,3 +1,4 @@
+
 """
 Django settings for config project.
 """
@@ -22,10 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-# Module-level logger for settings-time diagnostics (e.g. missing Brevo
-# credentials). Real handler/formatter config lives in LOGGING below; this
-# just needs `logging` configured enough that the message reaches stderr,
-# which Render captures regardless.
+# Module-level logger for settings-time diagnostics.
 _settings_logger = logging.getLogger("config.settings")
 
 
@@ -38,7 +36,10 @@ SECRET_KEY = os.getenv(
     "django-insecure-development-key",
 )
 
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+DEBUG = os.getenv(
+    "DEBUG",
+    "True",
+).lower() == "true"
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -91,12 +92,12 @@ MIDDLEWARE = [
 
     "django.middleware.security.SecurityMiddleware",
 
-    # WhiteNoise serves Django static files in production
+    # WhiteNoise serves Django static files in production.
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
 
-    # CORS middleware must be before CommonMiddleware
+    # CORS middleware must be before CommonMiddleware.
     "corsheaders.middleware.CorsMiddleware",
 
     "django.middleware.common.CommonMiddleware",
@@ -204,23 +205,6 @@ DATABASES = {
 # =========================================================
 # CLOUDINARY CONFIGURATION
 # =========================================================
-#
-# Cloudinary stores uploaded images.
-#
-# Aiven:
-#   Stores application/database information
-#
-# Cloudinary:
-#   Stores product/category/custom-jewelry images
-#
-# Render:
-#   Runs Django backend
-#
-# IMPORTANT:
-# Never hard-code the API secret here.
-# Store credentials in .env locally and Render
-# Environment Variables in production.
-# =========================================================
 
 CLOUDINARY_CLOUD_NAME = os.getenv(
     "CLOUDINARY_CLOUD_NAME"
@@ -235,7 +219,7 @@ CLOUDINARY_API_SECRET = os.getenv(
 )
 
 
-# Cloudinary SDK configuration
+# Cloudinary SDK configuration.
 import cloudinary
 
 cloudinary.config(
@@ -244,49 +228,108 @@ cloudinary.config(
     api_secret=CLOUDINARY_API_SECRET,
 )
 
+
 # =========================================================
-# METALS.DEV MARKET PRICING  (backend-only secret)
+# GOODRETURNS MARKET PRICING
 # =========================================================
 #
-# Server-side only. This key must NEVER be exposed to the frontend,
-# never placed in a VITE_* variable, and never logged.
+# GoodReturns is used as the server-side web source for
+# Indian metal rates.
 #
-# Required (Render -> Environment, and backend/.env locally):
-#   METALS_API_KEY           - Metals.Dev dashboard API key.
+# Metals currently supported:
+#   - Gold
+#   - Silver
+#   - Platinum
 #
-# Optional tuning:
-#   METALS_API_URL           - default: https://api.metals.dev/v1/latest
-#   METALS_CACHE_TTL         - seconds a fresh response stays "live"
-#                              before we try to refresh (default 45).
-#   METALS_CACHE_MAX_STALE   - seconds we will keep serving a stale
-#                              cached response when upstream is down
-#                              (default 900).
+# Palladium remains part of JWELLES' supported metal list,
+# but GoodReturns is not configured here as a verified
+# palladium source.
+#
+# The frontend does NOT access GoodReturns directly.
+#
+# Flow:
+#
+# GoodReturns
+#      ↓
+# Django pricing provider
+#      ↓
+# Market-price cache
+#      ↓
+# Existing JWELLES product-pricing logic
+#      ↓
+# Frontend
+#
 # =========================================================
 
-METALS_API_KEY = os.getenv("METALS_API_KEY", "").strip()
-METALS_API_URL = os.getenv(
-    "METALS_API_URL",
-    "https://api.metals.dev/v1/latest",
+GOODRETURNS_GOLD_URL = os.getenv(
+    "GOODRETURNS_GOLD_URL",
+    "https://www.goodreturns.in/gold-rates/",
 ).strip()
-METALS_CACHE_TTL = int(os.getenv("METALS_CACHE_TTL", "45"))
-METALS_CACHE_MAX_STALE = int(os.getenv("METALS_CACHE_MAX_STALE", "900"))
 
-if not METALS_API_KEY:
-    _settings_logger.warning(
-        "METALS_API_KEY is not set. The /api/v1/market-prices/ endpoint "
-        "will report metals as 'unavailable' until it is configured."
+GOODRETURNS_SILVER_URL = os.getenv(
+    "GOODRETURNS_SILVER_URL",
+    "https://www.goodreturns.in/silver-rates/",
+).strip()
+
+GOODRETURNS_PLATINUM_URL = os.getenv(
+    "GOODRETURNS_PLATINUM_URL",
+    "https://www.goodreturns.in/platinum-price.html",
+).strip()
+
+
+# Fresh cache duration.
+#
+# After this period the backend attempts to refresh the
+# GoodReturns prices.
+GOODRETURNS_CACHE_TTL = int(
+    os.getenv(
+        "GOODRETURNS_CACHE_TTL",
+        "300",
     )
+)
+
+
+# Maximum period for serving stale cached data if the
+# upstream GoodReturns page is temporarily unavailable.
+GOODRETURNS_CACHE_MAX_STALE = int(
+    os.getenv(
+        "GOODRETURNS_CACHE_MAX_STALE",
+        "3600",
+    )
+)
+
+
+# HTTP request timeout for GoodReturns.
+GOODRETURNS_REQUEST_TIMEOUT = int(
+    os.getenv(
+        "GOODRETURNS_REQUEST_TIMEOUT",
+        "10",
+    )
+)
+
+
+_settings_logger.info(
+    "GoodReturns market pricing configured: "
+    "gold=%s silver=%s platinum=%s cache_ttl=%ss "
+    "max_stale=%ss timeout=%ss",
+    GOODRETURNS_GOLD_URL,
+    GOODRETURNS_SILVER_URL,
+    GOODRETURNS_PLATINUM_URL,
+    GOODRETURNS_CACHE_TTL,
+    GOODRETURNS_CACHE_MAX_STALE,
+    GOODRETURNS_REQUEST_TIMEOUT,
+)
 
 
 # =========================================================
-# STONE PRICING (OpenFacet + FX)  — backend-only
+# STONE PRICING (OpenFacet + FX) — backend-only
 # =========================================================
 #
 # Diamond benchmark source: OpenFacet public matrix data.
-# Currency conversion: open.er-api.com (free, no API key).
+# Currency conversion: open.er-api.com.
 #
-# No secrets are required for either provider, but all URLs/timeouts
-# are configurable so they can be changed without touching service code.
+# This section is independent of GoodReturns metal pricing.
+# Do not mix metal and stone pricing here.
 # =========================================================
 
 STONE_OPENFACET_MATRIX_URL = os.getenv(
@@ -299,20 +342,47 @@ STONE_FX_URL = os.getenv(
     "https://open.er-api.com/v6/latest/USD",
 ).strip()
 
-STONE_PROVIDER_TIMEOUT = int(os.getenv("STONE_PROVIDER_TIMEOUT", "8"))
-STONE_CACHE_TTL = int(os.getenv("STONE_CACHE_TTL", "3600"))
-STONE_FX_CACHE_TTL = int(os.getenv("STONE_FX_CACHE_TTL", "43200"))
-STONE_MAX_STALE_SECONDS = int(os.getenv("STONE_MAX_STALE_SECONDS", "86400"))
+STONE_PROVIDER_TIMEOUT = int(
+    os.getenv(
+        "STONE_PROVIDER_TIMEOUT",
+        "8",
+    )
+)
+
+STONE_CACHE_TTL = int(
+    os.getenv(
+        "STONE_CACHE_TTL",
+        "3600",
+    )
+)
+
+STONE_FX_CACHE_TTL = int(
+    os.getenv(
+        "STONE_FX_CACHE_TTL",
+        "43200",
+    )
+)
+
+STONE_MAX_STALE_SECONDS = int(
+    os.getenv(
+        "STONE_MAX_STALE_SECONDS",
+        "86400",
+    )
+)
+
 
 # =========================================================
 # CACHES
 # =========================================================
 #
-# Django's locmem cache is per-process. With a single Render worker this
-# is fine for a 30-60s TTL on market prices. If you scale to multiple
-# workers later, swap in Redis (django-redis) — no code in
-# store/services/market_pricing.py needs to change, it uses the standard
-# django.core.cache API.
+# Django's locmem cache is per-process.
+#
+# With a single Render worker this is fine for the current
+# market-pricing cache.
+#
+# If multiple workers are introduced later, Redis can be
+# used without changing the standard Django cache calls
+# inside market_pricing.py.
 # =========================================================
 
 CACHES = {
@@ -373,7 +443,6 @@ STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise storage for production static files
 STATICFILES_STORAGE = (
     "whitenoise.storage.CompressedManifestStaticFilesStorage"
 )
@@ -381,12 +450,6 @@ STATICFILES_STORAGE = (
 
 # =========================================================
 # MEDIA FILES
-# =========================================================
-#
-# These settings can remain for existing local media files.
-#
-# New Cloudinary images will not depend on Render's
-# local filesystem when your models use CloudinaryField.
 # =========================================================
 
 MEDIA_URL = "/media/"
@@ -546,56 +609,52 @@ CSRF_TRUSTED_ORIGINS = [
 # =========================================================
 # EMAIL (Brevo Transactional REST API)
 # =========================================================
-#
-# OTP emails are sent via a direct HTTPS call to Brevo's REST API
-# (POST https://api.brevo.com/v3/smtp/email) from store/views.py's
-# send_otp_email() — not through Django's SMTP email backend. This avoids
-# SMTP entirely (no EMAIL_HOST/EMAIL_HOST_USER/EMAIL_HOST_PASSWORD, no SMTP
-# login vs. sender-email confusion, no port 587 connectivity issues).
-#
-# Required environment variables (set in Render -> Environment, and in
-# backend/.env for local development):
-#
-#   BREVO_API_KEY       - Brevo dashboard -> SMTP & API -> API Keys tab.
-#                          This is a REST API key, sent as the `api-key`
-#                          header — NOT the SMTP key from the SMTP tab
-#                          (that credential is for SMTP only and does not
-#                          work here).
-#   BREVO_SENDER_EMAIL  - a sender address VERIFIED in your Brevo account
-#                          (Brevo rejects sends from unverified senders).
-#   BREVO_SENDER_NAME   - display name for the From header. Optional,
-#                          defaults to "Jwelles".
-#
-# BREVO_API_URL below is the fixed Brevo endpoint — not meant to be
-# overridden per environment, just kept as a named setting instead of a
-# magic string inline in views.py.
-#
-# EMAIL_CONFIGURED tells send_otp_email() whether it can even attempt a
-# send. There is deliberately no "fall back to printing the email
-# somewhere" path for missing/invalid config, in dev or production: if
-# it's not configured, send_otp_email() returns False and the caller
-# (RegisterView / ResendOTPView) reports the failure instead of a false
-# "OTP sent" success.
-# =========================================================
 
 BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
-BREVO_API_KEY = os.getenv("BREVO_API_KEY", "").strip()
-BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL", "").strip()
-BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "Jwelles").strip()
 
-EMAIL_CONFIGURED = bool(BREVO_API_KEY and BREVO_SENDER_EMAIL)
+BREVO_API_KEY = os.getenv(
+    "BREVO_API_KEY",
+    "",
+).strip()
+
+BREVO_SENDER_EMAIL = os.getenv(
+    "BREVO_SENDER_EMAIL",
+    "",
+).strip()
+
+BREVO_SENDER_NAME = os.getenv(
+    "BREVO_SENDER_NAME",
+    "Jwelles",
+).strip()
+
+
+EMAIL_CONFIGURED = bool(
+    BREVO_API_KEY and BREVO_SENDER_EMAIL
+)
+
 
 if not EMAIL_CONFIGURED:
-    _log = _settings_logger.critical if not DEBUG else _settings_logger.warning
-    _log(
-        "BREVO_API_KEY / BREVO_SENDER_EMAIL are not set. OTP emails CANNOT "
-        "be sent until both are configured (Render -> Environment in "
-        "production, backend/.env locally)."
+
+    _log = (
+        _settings_logger.critical
+        if not DEBUG
+        else _settings_logger.warning
     )
+
+    _log(
+        "BREVO_API_KEY / BREVO_SENDER_EMAIL are not set. "
+        "OTP emails CANNOT be sent until both are configured "
+        "(Render -> Environment in production, backend/.env locally)."
+    )
+
 
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
-    f"{BREVO_SENDER_NAME} <{BREVO_SENDER_EMAIL}>" if BREVO_SENDER_EMAIL else "webmaster@localhost",
+    (
+        f"{BREVO_SENDER_NAME} <{BREVO_SENDER_EMAIL}>"
+        if BREVO_SENDER_EMAIL
+        else "webmaster@localhost"
+    ),
 )
 
 
@@ -621,20 +680,10 @@ if not DEBUG:
 # =========================================================
 # LOGGING
 # =========================================================
-#
-# Render captures whatever the process writes to stdout/stderr as the
-# service's logs, so a plain StreamHandler is all that's needed here —
-# no external log service required. This is what makes the
-# "OTP generated" / "Attempting to send OTP email" / "OTP email sent
-# successfully" / "Failed to send OTP email: <error>" messages from
-# store/views.py show up in the Render dashboard's Logs tab.
-#
-# Only messages and exception text are logged — nowhere in this project
-# do we log passwords, the Brevo SMTP key, or OTP values themselves.
-# =========================================================
 
 LOGGING = {
     "version": 1,
+
     "disable_existing_loggers": False,
 
     "formatters": {
@@ -657,17 +706,19 @@ LOGGING = {
     },
 
     "loggers": {
+
         "django": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
-        # store.views: registration / OTP generation / OTP email sending
+
         "store": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
+
         "config.settings": {
             "handlers": ["console"],
             "level": "INFO",
@@ -675,3 +726,4 @@ LOGGING = {
         },
     },
 }
+
