@@ -1,4 +1,3 @@
-
 import { Navigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContextInstance";
@@ -21,7 +20,8 @@ export default function SupportStaffRoute({ children }) {
   }
 
   if (!user.is_support_staff) {
-    return <Navigate to="/" replace />;
+    // Do NOT silently drop the user into the customer area.
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;

@@ -31,6 +31,7 @@ import InfoPage from "./pages/InfoPage";
 import CustomJewelry from "./pages/CustomJewelry";
 import CustomerSupport from "./pages/CustomerSupport";
 import SupportTicketDetails from "./pages/SupportTicketDetails";
+import Unauthorized from "./pages/Unauthorized";
 
 // Support Dashboard imports
 import SupportStaffRoute from "./components/auth/SupportStaffRoute";
@@ -149,6 +150,9 @@ function AppShell() {
               element={<SupportDashboardTicketDetail />}
             />
           </Route>
+
+          {/* ---------- Explicit access-denied destination ---------- */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
           <Route path="/:slug" element={<InfoPage />} />
 
