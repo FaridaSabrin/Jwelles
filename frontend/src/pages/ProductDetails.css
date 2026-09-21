@@ -223,3 +223,88 @@
     min-width: 130px;
   }
 }
+/* =========================================================
+   SHARE BUTTON
+   ========================================================= */
+
+.share-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.pd-share-btn {
+  flex: none;
+}
+
+.share-btn {
+  width: 54px;
+  height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.share-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.share-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.share-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 1000;
+  min-width: 180px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.share-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.84rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.share-option:hover {
+  background: var(--line-soft);
+  color: var(--gold);
+}
+
+@media (max-width: 576px) {
+  .share-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .share-menu {
+    right: 0;
+    min-width: 170px;
+  }
+}
