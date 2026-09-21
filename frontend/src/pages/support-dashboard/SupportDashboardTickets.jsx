@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CalendarDays, Eye, Search } from "lucide-react";
@@ -213,6 +212,53 @@ export default function SupportDashboardTickets() {
   }, [loadTickets]);
 
   /*
+   * ✅ NEW — Auto-highlight the matching status/category tab after a
+   * search returns results.
+   *
+   * Behaviour:
+   *   - If search is empty → do nothing (user controls tabs manually).
+   *   - If search returns tickets that all share ONE status → select it.
+   *   - If search returns tickets that all share ONE category → select it.
+   *   - If mixed / many → reset that dimension to "All".
+   *
+   * This makes the highlighted tab reflect the search result instead of
+   * always sitting on "All".
+   */
+  useEffect(() => {
+    // Only auto-switch tabs when a search is actually active.
+    if (!search) {
+      return;
+    }
+
+    // Wait for the tickets to load first.
+    if (loading || tickets.length === 0) {
+      return;
+    }
+
+    const uniqueStatuses = new Set(tickets.map((t) => t.status));
+    const uniqueCategories = new Set(tickets.map((t) => t.category));
+
+    if (uniqueStatuses.size === 1) {
+      const onlyStatus = [...uniqueStatuses][0];
+      if (onlyStatus && onlyStatus !== status) {
+        setStatus(onlyStatus);
+      }
+    } else if (status !== "") {
+      setStatus("");
+    }
+
+    if (uniqueCategories.size === 1) {
+      const onlyCategory = [...uniqueCategories][0];
+      if (onlyCategory && onlyCategory !== category) {
+        setCategory(onlyCategory);
+      }
+    } else if (category !== "") {
+      setCategory("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, tickets, loading]);
+
+  /*
    * Keep the URL synchronized with the selected filters.
    */
   useEffect(() => {
@@ -308,8 +354,22 @@ export default function SupportDashboardTickets() {
     setPage(1);
   };
 
+  /*
+   * ✅ UPDATED — When the search is cleared, reset status/category back
+   * to "All" so the UI returns to the default view.
+   *
+   * When a search is typed, we DON'T reset here — the auto-highlight
+   * useEffect above will select the right tab based on the result.
+   */
   const handleSearch = (event) => {
-    setSearch(event.target.value);
+    const value = event.target.value;
+
+    if (!value) {
+      setStatus("");
+      setCategory("");
+    }
+
+    setSearch(value);
     setPage(1);
   };
 
@@ -377,9 +437,8 @@ export default function SupportDashboardTickets() {
                 <button
                   key={option.value || "all-status"}
                   type="button"
-                  className={`sd-filter-chip ${
-                    active ? "is-active" : ""
-                  }`}
+                  className={`sd-filter-chip ${active ? "is-active" : ""
+                    }`}
                   onClick={() =>
                     handleStatus(option.value)
                   }
@@ -412,9 +471,8 @@ export default function SupportDashboardTickets() {
                 <button
                   key={option.value || "all-category"}
                   type="button"
-                  className={`sd-filter-chip ${
-                    active ? "is-active" : ""
-                  }`}
+                  className={`sd-filter-chip ${active ? "is-active" : ""
+                    }`}
                   onClick={() =>
                     handleCategory(option.value)
                   }
@@ -694,4 +752,3 @@ export default function SupportDashboardTickets() {
     </div>
   );
 }
-

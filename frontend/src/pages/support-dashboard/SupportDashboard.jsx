@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -10,6 +9,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { getSupportStats } from "../../services/adminSupportService";
+import SupportCharts from "./SupportCharts";
 import "./SupportDashboard.css";
 
 const CARDS = [
@@ -107,7 +107,9 @@ export default function SupportDashboard() {
 
                 return (
                   <div className="sd-card" key={card.key}>
-                    <div className={`sd-card-icon sd-card-icon-${card.iconClass}`}>
+                    <div
+                      className={`sd-card-icon sd-card-icon-${card.iconClass}`}
+                    >
                       <Icon size={20} strokeWidth={1.8} />
                     </div>
 
@@ -183,9 +185,11 @@ export default function SupportDashboard() {
               </Link>
             </div>
           </section>
+
+          {/* Ticket Analytics */}
+          <SupportCharts />
         </>
       )}
     </div>
   );
 }
-

@@ -1,0 +1,226 @@
+/* frontend/src/pages/support-dashboard/SupportCharts.css */
+
+.sd-charts-section {
+  margin-top: 32px;
+}
+
+.sd-charts-empty {
+  padding: 26px 20px;
+  background: var(--paper, #fffdfb);
+  border: 1px dashed var(--line, #e6dac8);
+  border-radius: 12px;
+  color: var(--muted, #8c7f72);
+  font-size: 13px;
+  text-align: center;
+}
+
+.sd-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sd-chart-card {
+  min-width: 0;
+  background: var(--paper, #fffdfb);
+  border: 1px solid var(--line, #e6dac8);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(32, 24, 17, 0.025);
+  /* Extra bottom padding so bottom legend doesn't sit flush against edge */
+  padding: 18px 18px 20px;
+}
+
+.sd-chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+.sd-chart-card-head {
+  margin-bottom: 8px;
+}
+
+.sd-chart-card-head h3 {
+  margin: 0;
+  color: var(--ink, #201811);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.sd-chart-card-sub {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted, #8c7f72);
+  font-size: 11px;
+}
+
+.sd-chart-body {
+  position: relative;
+  min-width: 0;
+}
+
+/* Center total inside donut */
+.sd-chart-center {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.sd-chart-center-value {
+  color: var(--ink, #201811);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sd-chart-center-label {
+  margin-top: 2px;
+  color: var(--muted, #8c7f72);
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+/* Custom legend for donut */
+.sd-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sd-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #4a4035;
+}
+
+.sd-chart-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.sd-chart-legend-text {
+  white-space: nowrap;
+}
+
+/* Custom tooltips */
+.sd-chart-tooltip {
+  background: #fffdfb;
+  border: 1px solid #e6dac8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #3c342a;
+  box-shadow: 0 6px 18px rgba(32, 24, 17, 0.08);
+}
+
+.sd-chart-tooltip-title {
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.sd-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.5;
+}
+
+.sd-chart-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* =========================
+   Resolution Summary (list layout)
+========================= */
+
+.sd-resolution-list {
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+}
+
+.sd-res-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 4px;
+  border-bottom: 1px dashed #efe4d3;
+}
+
+.sd-res-row:last-child {
+  border-bottom: 0;
+}
+
+.sd-res-row--highlight {
+  border-top: 1px solid #efe4d3;
+  border-bottom: 1px solid #efe4d3;
+}
+
+.sd-res-row-label {
+  color: var(--muted, #8c7f72);
+  font-size: 13px;
+}
+
+.sd-res-row-value {
+  color: var(--ink, #201811);
+  font-size: 15px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.sd-res-row-pct {
+  color: #8c7f72;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.sd-res-blue {
+  color: #3f6fb0;
+}
+.sd-res-orange {
+  color: #c98a2c;
+}
+.sd-res-green {
+  color: #2f8a4d;
+}
+
+.sd-res-note {
+  color: #a89a8a;
+  font-size: 11px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sd-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .sd-chart-card {
+    padding: 14px 12px 16px;
+  }
+
+  .sd-chart-legend {
+    gap: 6px 12px;
+  }
+}
+/* Resolution Summary ko grid me full width banao
+   (ye last child hai .sd-charts-grid ke andar) */
+.sd-charts-grid > .sd-chart-card:last-child {
+  grid-column: 1 / -1;
+}

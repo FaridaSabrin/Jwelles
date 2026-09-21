@@ -13,6 +13,7 @@ import WishlistButton from "../components/WishlistButton";
 import ProductCard from "../components/ProductCard";
 import { ProductDetailsSkeleton } from "../components/Skeletons";
 import ErrorState from "../components/ErrorState";
+import ShareButton from "../components/ShareButton";
 import "./ProductDetails.css";
 
 function Accordion({ title, defaultOpen, children }) {
@@ -63,6 +64,64 @@ export default function ProductDetails() {
   }, [id]);
 
   useEffect(() => { load(); window.scrollTo(0, 0); }, [load]);
+
+  /* ------------------------------------------------------------------
+     OPEN GRAPH / TWITTER META TAGS
+     Jab bhi product load ho, page ke <head> mein dynamic OG tags daal
+     dete hain. Isse WhatsApp, Facebook, X/Twitter, Telegram, Slack,
+     LinkedIn, iMessage, Gmail etc. ka link preview card product ki
+     image + title + description ke saath render hota hai.
+  ------------------------------------------------------------------ */
+  useEffect(() => {
+    if (!product) return;
+
+    const ogImage =
+      product.images?.[0]?.image || product.image || "";
+
+    const ogTitle = `${product.name} — JWELLES`;
+    const ogDesc =
+      product.description?.slice(0, 160) ||
+      `Shop ${product.name} at JWELLES.`;
+    const ogUrl = window.location.href;
+
+    // Absolute URL for image (crawlers need full https URL)
+    const absoluteImage =
+      ogImage && ogImage.startsWith("http")
+        ? ogImage
+        : ogImage
+        ? `${window.location.origin}${ogImage.startsWith("/") ? "" : "/"}${ogImage}`
+        : "";
+
+    const setMeta = (attr, key, content) => {
+      if (!content) return;
+      let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    // Open Graph (WhatsApp, Facebook, LinkedIn, Telegram, Slack)
+    setMeta("property", "og:type", "product");
+    setMeta("property", "og:title", ogTitle);
+    setMeta("property", "og:description", ogDesc);
+    setMeta("property", "og:image", absoluteImage);
+    setMeta("property", "og:image:secure_url", absoluteImage);
+    setMeta("property", "og:image:alt", product.name);
+    setMeta("property", "og:url", ogUrl);
+    setMeta("property", "og:site_name", "JWELLES");
+
+    // Twitter / X card
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", ogTitle);
+    setMeta("name", "twitter:description", ogDesc);
+    setMeta("name", "twitter:image", absoluteImage);
+
+    // Update document title too
+    document.title = ogTitle;
+  }, [product]);
 
   if (loading) {
     return (
@@ -189,6 +248,7 @@ export default function ProductDetails() {
               <Zap size={16} /> Buy Now
             </button>
             <WishlistButton product={product} className="pd-wishlist-btn" />
+            <ShareButton product={product} className="pd-share-btn" />
           </div>
 
           <div className="pd-accordions">
@@ -277,4 +337,3 @@ export default function ProductDetails() {
     </div>
   );
 }
-

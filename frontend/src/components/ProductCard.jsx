@@ -5,6 +5,7 @@ import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import ProductImage from "./ProductImage";
 import WishlistButton from "./WishlistButton";
+import ShareButton from "./ShareButton";
 import Rating from "./Rating";
 import Price from "./Price";
 import "./ProductCard.css";
@@ -85,11 +86,17 @@ export default function ProductCard({ product }) {
             </span>
           )}
 
-          {/* WISHLIST */}
-          <WishlistButton
-            product={product}
-            className="product-wishlist"
-          />
+          {/* WISHLIST + SHARE */}
+          <div className="product-card-actions-top">
+            <WishlistButton
+              product={product}
+              className="product-wishlist"
+            />
+            <ShareButton
+              product={product}
+              className="product-share"
+            />
+          </div>
         </div>
 
         {/* PRODUCT INFORMATION */}

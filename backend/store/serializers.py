@@ -555,7 +555,11 @@ class AdminSupportTicketListSerializer(SupportTicketListSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta(SupportTicketListSerializer.Meta):
-        fields = SupportTicketListSerializer.Meta.fields + ("user",)
+        fields = SupportTicketListSerializer.Meta.fields + (
+            "user",
+            "resolved_at",
+            "closed_at",
+        )
 
 
 class AdminSupportTicketDetailSerializer(AdminSupportTicketListSerializer):

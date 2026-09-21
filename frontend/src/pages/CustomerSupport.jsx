@@ -92,8 +92,14 @@ export default function CustomerSupport() {
 
   const validate = () => {
     const next = {};
-    if (!form.subject.trim()) next.subject = "Subject is required.";
+
+    // ✅ Subject sirf tab required hai jab Category = "Other" ho.
+    if (form.category === "other" && !form.subject.trim()) {
+      next.subject = "Subject is required.";
+    }
+
     if (!form.description.trim()) next.description = "Please describe the issue.";
+
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -104,9 +110,23 @@ export default function CustomerSupport() {
 
     try {
       setSubmitting(true);
+
+      // ✅ Agar Category "Other" nahi hai, to subject ke liye category
+      // ka label + description ka pehla hissa auto-generate karo.
+      // Isse backend ko empty subject nahi milta aur existing
+      // SupportTicket model bina change chalta hai.
+      const categoryLabel =
+        CATEGORY_OPTIONS.find((c) => c.value === form.category)?.label ||
+        "Support Request";
+
+      const finalSubject =
+        form.category === "other"
+          ? form.subject.trim()
+          : `${categoryLabel} — ${form.description.trim().slice(0, 60)}${form.description.trim().length > 60 ? "…" : ""}`;
+
       await createSupportTicket({
         category: form.category,
-        subject: form.subject.trim(),
+        subject: finalSubject,
         description: form.description.trim(),
         priority: form.priority,
         order_id: form.order_id ? Number(form.order_id) : null,
@@ -125,18 +145,35 @@ export default function CustomerSupport() {
     <div className="container support-page">
       <Breadcrumbs items={[{ label: "Customer Support" }]} />
 
+      {/* =========================================================
+          HEADER — icon + text ek line me, CTA right side
+          ========================================================= */}
       <div className="support-header">
-        <div>
-          <div className="support-header-icon"><LifeBuoy aria-hidden="true" /></div>
-          <h1 className="heading-lg">Customer Support</h1>
-          <p className="text-muted">Have an issue with an order, payment, or product? Raise a ticket and our team will get back to you here.</p>
+        <div className="support-header-main">
+          <div className="support-header-icon">
+            <LifeBuoy aria-hidden="true" />
+          </div>
+
+          <div className="support-header-text">
+            <h1 className="heading-lg">Customer Support</h1>
+            <p className="text-muted">
+              Have an issue with an order, payment, or product? Raise a ticket and our team will get back to you here.
+            </p>
+          </div>
         </div>
 
-        <button type="button" className="btn btn-primary" onClick={() => (showForm ? closeForm() : openForm())}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => (showForm ? closeForm() : openForm())}
+        >
           {showForm ? <><X size={16} /> Cancel</> : <><Plus size={16} /> Create Support Ticket</>}
         </button>
       </div>
 
+      {/* =========================================================
+          CREATE FORM PANEL
+          ========================================================= */}
       {showForm && (
         <div className="support-panel" ref={formRef}>
           <h2 className="heading-md">New Support Ticket</h2>
@@ -169,11 +206,20 @@ export default function CustomerSupport() {
                 </div>
               )}
 
-              <div className="field support-grid-full">
-                <label>Subject</label>
-                <input className={`input ${errors.subject ? "has-error" : ""}`} value={form.subject} onChange={setField("subject")} placeholder="A short summary of the issue" />
-                {errors.subject && <p className="field-error">{errors.subject}</p>}
-              </div>
+              {/* ✅ Subject field sirf tab dikhta hai jab Category = "Other" ho.
+                  Baaki categories me category khud issue batati hai. */}
+              {form.category === "other" && (
+                <div className="field support-grid-full">
+                  <label>Subject</label>
+                  <input
+                    className={`input ${errors.subject ? "has-error" : ""}`}
+                    value={form.subject}
+                    onChange={setField("subject")}
+                    placeholder="A short summary of the issue"
+                  />
+                  {errors.subject && <p className="field-error">{errors.subject}</p>}
+                </div>
+              )}
 
               <div className="field support-grid-full">
                 <label>Description</label>
@@ -195,6 +241,9 @@ export default function CustomerSupport() {
         </div>
       )}
 
+      {/* =========================================================
+          TICKET LIST PANEL
+          ========================================================= */}
       <div className="support-panel">
         <div className="support-list-header">
           <h2 className="heading-md">My Support Tickets</h2>
@@ -214,8 +263,14 @@ export default function CustomerSupport() {
 
         {!loading && error && <ErrorState title="Couldn't load your tickets" onRetry={loadTickets} />}
 
+        {/* ✅ EmptyState me ab koi action button nahi — sirf message.
+            Primary CTA top-right header me hai. Isse duplicate button nahi dikhega. */}
         {!loading && !error && tickets.length === 0 && (
-          <EmptyState icon={Inbox} title="No support tickets yet" message="When you raise a ticket, it will show up here." actionLabel="Create Support Ticket" onAction={openForm} />
+          <EmptyState
+            icon={Inbox}
+            title="No support tickets yet"
+            message='Click "Create Support Ticket" at the top to raise your first ticket.'
+          />
         )}
 
         {!loading && !error && tickets.length > 0 && (
