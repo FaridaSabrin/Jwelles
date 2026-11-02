@@ -520,6 +520,9 @@ CORS_ALLOWED_ORIGINS = [
     # -----------------------------------------------------
 
     "https://jwelles.onrender.com",
+    "https://localhost",
+    "http://localhost",
+    "capacitor://localhost",
 ]
 
 
@@ -603,6 +606,9 @@ CSRF_TRUSTED_ORIGINS = [
     # -----------------------------------------------------
 
     "https://jwelles.onrender.com",
+    "https://localhost",
+    "http://localhost",
+    "capacitor://localhost",
 ]
 
 
